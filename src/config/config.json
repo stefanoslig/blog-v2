@@ -1,0 +1,30 @@
+{
+  "site": {
+    "title": "Stefanos Lignos - Blog",
+    "base_url": "https://www.stefanos-lignos.dev/",
+    "base_path": "/",
+    "trailing_slash": false,
+    "favicon": "/favicon.png",
+    "logo": "/assets/my-photo-2.jpg",
+    "logo_width": "200",
+    "logo_height": "34",
+    "logo_text": "Stefanos Lignos"
+  },
+  "settings": {
+    "pagination": 5,
+    "summary_length": 100
+  },
+  "metadata": {
+    "meta_author": "Stefanos Lignos",
+    "meta_image": "/images/og-image.png",
+    "meta_description": "Stefanos Lignos - Blog"
+  },
+  "params": {
+    "contact_form_action": "#",
+    "copyright": "Copyright © 2024 Stefanos Lignos"
+  },
+  "contactinfo": {
+    "email": "stefanoslignos@gmail.com",
+    "phone": "+31616222843"
+  }
+}
