@@ -12,7 +12,7 @@
   },
   "settings": {
     "pagination": 5,
-    "summary_length": 100
+    "summary_length": 200
   },
   "metadata": {
     "meta_author": "Stefanos Lignos",
@@ -20,7 +20,6 @@
     "meta_description": "Stefanos Lignos - Blog"
   },
   "params": {
-    "contact_form_action": "#",
     "copyright": "Copyright © 2024 Stefanos Lignos"
   },
   "contactinfo": {

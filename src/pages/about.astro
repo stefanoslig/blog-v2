@@ -1,11 +1,14 @@
 ---
+import config from "@/config/config.json";
 import { Image } from "astro:assets";
 import Base from "@/layouts/Base.astro";
 import { markdownify } from "@/lib/utils/textConverter";
 import { getEntryBySlug } from "astro:content";
+import { FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 
 const entry = await getEntryBySlug("about", "index");
 const { Content } = await entry.render();
+const { email, phone } = config.contactinfo;
 const { title, description, meta_title, image } = entry.data;
 ---
 
@@ -21,13 +24,13 @@ const { title, description, meta_title, image } = entry.data;
         <div class="sm:col-5 md:col-4">
           {
             image && (
-              <div class="img-cover mb-8">
+              <div class="img-cover mb-8 ">
                 <Image
                   src={image}
-                  width={295}
+                  width={395}
                   height={395}
                   alt={title}
-                  class="rounded-lg w-full"
+                  class="rounded-full"
                 />
               </div>
             )
@@ -39,9 +42,26 @@ const { title, description, meta_title, image } = entry.data;
           <div class="content">
             <Content />
           </div>
-          <a href="/contact" class="btn btn-primary text-white py-2"
-            >Get In Touch</a
-          >
+          <p class="mb-8 text-2xl font-bold text-theme-dark">Contact Info</p>
+          <ul class="flex flex-col space-y-8">
+            <li>
+              <div class="flex text-theme-dark items-center text-xl">
+                <FaEnvelope className="mr-3 text-primary" />
+                <p class="font-semibold">Email</p>
+              </div>
+              <p
+                set:html={markdownify(email)}
+                class="mt-2 leading-5 pl-8 content"
+              />
+            </li>
+            <li>
+              <div class="flex text-theme-dark items-center text-xl">
+                <FaPhoneAlt className="mr-3 text-primary" />
+                <p class="font-semibold">Phone</p>
+              </div>
+              <p set:html={markdownify(phone)} class="mt-2 leading-5 pl-8" />
+            </li>
+          </ul>
         </div>
       </div>
     </div>
