@@ -1,1 +1,1 @@
-my new astro blog 
+my astro blog 
