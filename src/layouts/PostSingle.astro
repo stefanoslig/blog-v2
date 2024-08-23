@@ -12,9 +12,10 @@ const allAuthors = await getSinglePage("authors");
 const posts = await getSinglePage("posts");
 const { post } = Astro.props;
 const similarPosts = similerItems(post, posts, post.slug);
-const { Content } = await post.render();
+const { Content, remarkPluginFrontmatter } = await post.render();
 const { title, description, authors, categories, image, date, tags } =
   post.data;
+const lastModified = dateFormat(remarkPluginFrontmatter.lastModified);
 ---
 
 <section class="section">
@@ -29,7 +30,7 @@ const { title, description, authors, categories, image, date, tags } =
                 .filter((author) =>
                   authors
                     .map((author: string) => slugify(author))
-                    .includes(slugify(author.data.title)),
+                    .includes(slugify(author.data.title))
                 )
                 .map((author, i) => (
                   <a
@@ -53,6 +54,12 @@ const { title, description, authors, categories, image, date, tags } =
           <li class="mx-3 flex items-center flex-wrap font-medium">
             <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
             <>{dateFormat(date)}</>
+          </li>
+
+          <li class="mx-3 flex items-center flex-wrap font-medium">
+            <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
+            modified
+            <>{lastModified}</>
           </li>
           <li class="mx-3 flex items-center flex-wrap">
             <BiCategoryAlt className="mr-1 h-[18px] w-[18px] text-gray-600" />
