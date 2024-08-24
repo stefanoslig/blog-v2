@@ -7,6 +7,7 @@ import remarkToc from "remark-toc";
 import config from "./src/config/config.json";
 import partytown from '@astrojs/partytown';
 import sitemap from '@astrojs/sitemap';
+import { remarkModifiedTime } from './remark-modified-time.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -28,7 +29,7 @@ export default defineConfig({
     imports: ["@/shortcodes/Button", "@/shortcodes/Accordion", "@/shortcodes/Notice", "@/shortcodes/Video", "@/shortcodes/Youtube", "@/shortcodes/Tabs", "@/shortcodes/Tab"]
   })],
   markdown: {
-    remarkPlugins: [remarkToc, [remarkCollapse, {
+    remarkPlugins: [remarkModifiedTime, remarkToc, [remarkCollapse, {
       test: "Table of contents"
     }]],
     shikiConfig: {
