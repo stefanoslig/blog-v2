@@ -54,10 +54,10 @@ const { title, description, authors, categories, image, date, tags } =
             <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
             {
               remarkPluginFrontmatter.lastModified === date ? (
-                <>Published: {dateFormat(date)}</>
+                <>Published {dateFormat(date)}</>
               ) : (
                 <>
-                  Modified: {dateFormat(remarkPluginFrontmatter.lastModified)}
+                  Modified {dateFormat(remarkPluginFrontmatter.lastModified)}
                 </>
               )
             }
