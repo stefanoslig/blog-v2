@@ -15,7 +15,6 @@ const similarPosts = similerItems(post, posts, post.slug);
 const { Content, remarkPluginFrontmatter } = await post.render();
 const { title, description, authors, categories, image, date, tags } =
   post.data;
-const lastModified = dateFormat(remarkPluginFrontmatter.lastModified);
 ---
 
 <section class="section">
@@ -53,13 +52,15 @@ const lastModified = dateFormat(remarkPluginFrontmatter.lastModified);
           </li>
           <li class="mx-3 flex items-center flex-wrap font-medium">
             <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
-            <>{dateFormat(date)}</>
-          </li>
-
-          <li class="mx-3 flex items-center flex-wrap font-medium">
-            <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
-            modified
-            <>{lastModified}</>
+            {
+              remarkPluginFrontmatter.lastModified === date ? (
+                <>Published: {dateFormat(date)}</>
+              ) : (
+                <>
+                  Modified: {dateFormat(remarkPluginFrontmatter.lastModified)}
+                </>
+              )
+            }
           </li>
           <li class="mx-3 flex items-center flex-wrap">
             <BiCategoryAlt className="mr-1 h-[18px] w-[18px] text-gray-600" />
