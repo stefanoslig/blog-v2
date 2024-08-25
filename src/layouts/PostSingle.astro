@@ -7,10 +7,11 @@ import dateFormat from "@/lib/utils/dateFormat";
 import similerItems from "@/lib/utils/similarItems";
 import { humanize, markdownify, slugify } from "@/lib/utils/textConverter";
 import { BiCalendarEdit, BiCategoryAlt } from "react-icons/bi";
+import TableOfContents from "./components/TableOfContents.astro";
 
 const allAuthors = await getSinglePage("authors");
 const posts = await getSinglePage("posts");
-const { post } = Astro.props;
+const { post, headings } = Astro.props;
 const similarPosts = similerItems(post, posts, post.slug);
 const { Content, remarkPluginFrontmatter } = await post.render();
 const { title, description, authors, categories, image, date, tags } =
@@ -19,6 +20,7 @@ const { title, description, authors, categories, image, date, tags } =
 
 <section class="section">
   <div class="container">
+    <TableOfContents headings={headings} />
     <article class="row justify-center">
       <div class="md:col-10 text-center">
         <h1 set:html={markdownify(title)} class="h2" />
@@ -56,9 +58,7 @@ const { title, description, authors, categories, image, date, tags } =
               remarkPluginFrontmatter.lastModified === date ? (
                 <>Published {dateFormat(date)}</>
               ) : (
-                <>
-                  Modified {dateFormat(remarkPluginFrontmatter.lastModified)}
-                </>
+                <>Modified {dateFormat(remarkPluginFrontmatter.lastModified)}</>
               )
             }
           </li>
