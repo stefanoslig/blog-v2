@@ -432,7 +432,7 @@ export class ExampleComponent {
 
 If you already use NgRx in a project, I would suggest starting to work with the NgRx Signal Store for introducing new stores. You can easily combine the NgRx Store and the NgRx Signal Store ([example](https://github.com/stefanoslig/angular-ngrx-nx-realworld-example-app/blob/main/libs/articles/data-access/src/lib/article.store.ts#L121)). For a new project, I would strongly suggest starting to work directly with the NgRx Signal Store for state management. This is because it can dramatically reduce boilerplate and, of course, has full support for working with Angular Signals in a structured way.
 
-## Useful links - examples:
+## Useful links - examples
 - [Example app using NgRx Signal Store - currently migrating from NgRx Store to NgRx Signal Store](https://github.com/stefanoslig/angular-ngrx-nx-realworld-example-app/blob/main/libs/articles/data-access/src/lib/article.store.ts)
 - [Stackblitz custom feature - withClipboard](https://stackblitz.com/edit/stackblitz-starters-s3qcsd?file=src%2Fmain.store.ts)
 - [Stackblitz custom feature dynamic properties - withClipboard](https://stackblitz.com/edit/stackblitz-starters-2ea27n?file=src%2Fmain.store.ts)
