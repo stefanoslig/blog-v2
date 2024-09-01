@@ -6,6 +6,7 @@ import { plainify } from "@/lib/utils/textConverter";
 import Footer from "@/partials/Footer.astro";
 import Header from "@/partials/Header.astro";
 import "@/styles/main.scss";
+import type { MarkdownHeading } from "astro";
 import { AstroFont } from "astro-font";
 import { ViewTransitions } from "astro:transitions";
 
@@ -33,10 +34,11 @@ export interface Props {
   image?: string;
   noindex?: boolean;
   canonical?: string;
+  headings?: MarkdownHeading[];
 }
 
 // distructure frontmatters
-const { title, meta_title, description, image, noindex, canonical } =
+const { title, meta_title, description, image, noindex, canonical, headings } =
   Astro.props;
 ---
 
@@ -45,8 +47,7 @@ const { title, meta_title, description, image, noindex, canonical } =
   <head>
     <script
       type="text/partytown"
-      src="https://www.googletagmanager.com/gtag/js?id=G-YJN6NRX103"
-    ></script>
+      src="https://www.googletagmanager.com/gtag/js?id=G-YJN6NRX103"></script>
     <script type="text/partytown">
       window.dataLayer = window.dataLayer || [];
       function gtag() {
