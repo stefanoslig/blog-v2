@@ -279,7 +279,7 @@ In my ideal world, the Business Analyst would be responsible for drawing up the 
 
 [**Source code**](https://github.com/stefanoslig/angular-xstate)
 
-Find me on [Twitter](https://twitter.com/stefanos_lig) / [Github](https://github.com/stefanoslig)
+Find me on [Twitter](https://x.com/stefanos_lig) / [Github](https://github.com/stefanoslig)
 
 Special thanks to [Aristeidis Bampakos](https://medium.com/u/39abb62c7869?source=post_page-----2817441e26bf-----------------------------------) and [Giannis Smirnios](https://medium.com/u/93c1acbde1fc?source=post_page-----2817441e26bf-----------------------------------) for the extensive reviews♡.
 

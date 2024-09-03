@@ -1,6 +1,5 @@
 import React from "react";
 import { useEffect, useState } from 'react';
-import './TableOfContents.css';
 import type { TocItem } from '@/util/generateToc';
 
 
