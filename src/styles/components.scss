@@ -42,6 +42,8 @@
 
 // social icon style
 .social-icons {
+  display: flex;
+  justify-content: center;
   @apply space-x-4;
   li {
     @apply inline-block;

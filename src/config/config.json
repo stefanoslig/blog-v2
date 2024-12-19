@@ -11,7 +11,7 @@
     "logo_text": "Stefanos Lignos"
   },
   "settings": {
-    "pagination": 5,
+    "pagination": 10,
     "summary_length": 200
   },
   "metadata": {
