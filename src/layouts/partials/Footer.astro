@@ -4,16 +4,21 @@ import config from "@/config/config.json";
 import menu from "@/config/menu.json";
 import social from "@/config/social.json";
 import { markdownify } from "@/lib/utils/textConverter";
+import FooterBackground from "../../../public/assets/footer.svg";
 ---
 
-<footer class="section bg-theme-dark">
-  <div class="container text-center">
+<footer>
+  <FooterBackground />
+  <div class="footer-social text-center">
     {/* footer menu */}
     <ul class="mb-8 space-x-4">
       {
         menu.footer.map((menu) => (
           <li class="inline-block">
-            <a href={menu.url} class="p-4 text-white/75 hover:text-white transition-all">
+            <a
+              href={menu.url}
+              class="p-4 text-white/75 hover:text-white transition-all"
+            >
               {menu.name}
             </a>
           </li>
@@ -26,3 +31,16 @@ import { markdownify } from "@/lib/utils/textConverter";
     <p set:html={markdownify(config.params.copyright)} class="text-white/75" />
   </div>
 </footer>
+
+<style>
+  footer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .footer-social {
+    position: absolute;
+  }
+</style>

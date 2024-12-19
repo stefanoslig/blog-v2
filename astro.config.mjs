@@ -11,6 +11,9 @@ import { remarkModifiedTime } from "./remark-modified-time.mjs";
 
 // https://astro.build/config
 export default defineConfig({
+  experimental: {
+    svg: true,
+  },
   site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
   base: config.site.base_path ? config.site.base_path : "/",
   trailingSlash: config.site.trailing_slash ? "always" : "never",

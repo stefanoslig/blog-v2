@@ -1,6 +1,6 @@
 // section style
 .section {
-  @apply py-20;
+  @apply py-10;
 }
 
 // container
@@ -44,6 +44,7 @@
 .social-icons {
   display: flex;
   justify-content: center;
+
   @apply space-x-4;
   li {
     @apply inline-block;
