@@ -9,6 +9,8 @@ tags: ["Angular", "NgRx", "NgRx Signal Store", "Angular Signals"]
 draft: false
 ---
 
+import Aside from "@/components/Aside.astro";
+
 ## Introduction
 
 When the Angular team introduced the signals API, I started thinking about what a nice solution for the state management of signals would look like. I had the hope that the emerging solution would be a thin layer on top of Angular signals, providing the necessary tools for working with them in a structured and scalable way while minimizing boilerplate. Having worked with [Pinia](https://pinia.vuejs.org/) in the past, the official state management solution for Vue.js, I really liked its simplicity and modularity. Pinia has only a few core concepts and a very compact API which makes it super easy to start working with.
@@ -78,9 +80,6 @@ export const HelloStore = signalStore(
 ```
 
 Let's explore what happens internally when we call the `signalStore` function. The first thing that happens is that an `injectable service` will be created. This service is what the `signalStore` function returns. Depending on the configuration we have provided, Angular will provide the service in the root injector making it available throughout the application (global state) or we will need to provide it in a specific component (local state).
-
-> [!TIP]
-> Use the command line to detect and resolve the errors!
 
 ![ngrx signals store injectable](/assets/blog/ngrx-signals-store/signal-store-injectable.png)
 
@@ -192,6 +191,20 @@ export const ArticleStore = signalStore(
 ### patchState
 
 The patchState utility function provides a type-safe way to perform immutable updates on pieces of state. Due to a recent change to the default equality check function in signals in Angular 17.0.0-next.8 release, it is important to make sure that we update the values of the nested signals of our state in an immutable way. That's because in the new default equality check of the Angular signals, objects are checked by reference. Therefore, if you return the same object, just mutated, your signal will not send a notification indicating that it has been updated. The `patchState` function helps us with this.
+
+<Aside type="tip">
+  By default, it's not possible to modify the state of a Signal Store externally (e.g from a component). However, if for some reason you need to modify the state outside the Store, you need to set `{ protectedState: false }` when creating the Signal Store. This is not recommended though.
+
+```ts
+import { signalStore, withState } from "@ngrx/signals";
+
+export const HelloStore = signalStore(
+  { protectedState: false },
+  withState({ firstName: "John", lastName: "Doe" }),
+);
+```
+
+</Aside>
 
 ### withComputed
 
