@@ -9,6 +9,8 @@ import partytown from "@astrojs/partytown";
 import sitemap from "@astrojs/sitemap";
 import { remarkModifiedTime } from "./remark-modified-time.mjs";
 
+import mdx from "@astrojs/mdx";
+
 // https://astro.build/config
 export default defineConfig({
   experimental: {
@@ -36,11 +38,11 @@ export default defineConfig({
         "@/shortcodes/Accordion",
         "@/shortcodes/Notice",
         "@/shortcodes/Video",
-        "@/shortcodes/Youtube",
         "@/shortcodes/Tabs",
         "@/shortcodes/Tab",
       ],
     }),
+    mdx(),
   ],
   markdown: {
     remarkPlugins: [
