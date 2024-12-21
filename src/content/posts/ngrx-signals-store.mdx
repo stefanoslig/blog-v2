@@ -1,15 +1,15 @@
 ---
-title: "All you need to know to get started with the NgRx Signal Store"
-description: "In this article, we explore the NgRx Signal Store, a new state management solution for Angular Signals, offering simplicity, scalability, and minimal boilerplate."
-image: "/assets/blog/ngrx-signals-store/ngrx-signal-store.png"
+title: 'All you need to know to get started with the NgRx Signal Store'
+description: 'In this article, we explore the NgRx Signal Store, a new state management solution for Angular Signals, offering simplicity, scalability, and minimal boilerplate.'
+image: '/assets/blog/ngrx-signals-store/ngrx-signal-store.png'
 date: 2024-01-08T05:35:07.322Z
-authors: ["Stefanos Lignos"]
-categories: ["Angular"]
-tags: ["Angular", "NgRx", "NgRx Signal Store", "Angular Signals"]
+authors: ['Stefanos Lignos']
+categories: ['Angular']
+tags: ['Angular', 'NgRx', 'NgRx Signal Store', 'Angular Signals']
 draft: false
 ---
 
-import Aside from "@/components/Aside.astro";
+import Aside from '@/components/Aside.astro';
 
 ## Introduction
 
@@ -26,21 +26,21 @@ The new NgRx Signal Store is an all-in-one functional state management solution 
 The simplest example of creating a store is:
 
 ```ts
-import { signalStore, withState } from "@ngrx/signals";
+import { signalStore, withState } from '@ngrx/signals';
 
 export const HelloStore = signalStore(
-  withState({ firstName: "John", lastName: "Doe" }),
+  withState({ firstName: 'John', lastName: 'Doe' }),
 );
 ```
 
 and this can be used in the components like this:
 
 ```ts
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { HelloStore } from "./hello.store";
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { HelloStore } from './hello.store';
 
 @Component({
-  selector: "app-hello",
+  selector: 'app-hello',
   standalone: true,
   template: ` <h1>Hello {{ helloStore.firstName() }}!</h1> `,
   providers: [HelloStore],
@@ -68,11 +68,11 @@ Indeed, as we will see in the next sections, it's super easy to extend the funct
 Conceptually the `signalStore` function is similar to the RxJS `pipe` function. The `pipe` function takes pipeable operators as arguments, it first performs the logic of the first pipeable operator and then uses that value to execute the logic of the next pipeable operator, and so on. In this way, we define the behavior of a stream. Similarly, the `signalStore` function takes `store feature functions` (such as `withState`, `withComputed`, `withHooks`, `withProps`, etc.) as input arguments. It will first perform the logic of the first `store feature function` and then uses that value to execute the logic of the next feature function and so on. In this way, we define the intended behavior of our store.
 
 ```ts
-import { computed } from "@angular/core";
-import { signalStore, withComputed, withState } from "@ngrx/signals";
+import { computed } from '@angular/core';
+import { signalStore, withComputed, withState } from '@ngrx/signals';
 
 export const HelloStore = signalStore(
-  withState({ firstName: "John", lastName: "Doe" }),
+  withState({ firstName: 'John', lastName: 'Doe' }),
   withComputed(({ firstName, lastName }) => ({
     name: computed(() => `${firstName()} ${lastName()}`),
   })),
@@ -97,15 +97,15 @@ We use the `withState` feature to define the shape and the value of our state in
 
 ```ts
 export const UserStore = signalStore(
-  { providedIn: "root" },
+  { providedIn: 'root' },
   withState({
     user: {
-      firstName: "John",
-      lastName: "Doe",
+      firstName: 'John',
+      lastName: 'Doe',
       age: 25,
       address: {
         id: 1,
-        country: "UK",
+        country: 'UK',
       },
     },
     settings: {
@@ -118,11 +118,11 @@ export const UserStore = signalStore(
 The `withState` function will create a nested signal for us. This means that we can access any property of the state, regardless of its depth, in our components or in our code, just as we would for any other signal. For example, with the above store, we can display the user's country like this:
 
 ```ts
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { UserStore } from "./user.store";
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { UserStore } from './user.store';
 
 @Component({
-  selector: "app-user",
+  selector: 'app-user',
   standalone: true,
   template: ` <h1>Country: {{ userStore.user.address.country() }}!</h1> `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -148,7 +148,7 @@ Examples of `withMethods` usage:
 
 ```ts
 export const HelloStore = signalStore(
-  withState({ firstName: "John", lastName: "Doe" }),
+  withState({ firstName: 'John', lastName: 'Doe' }),
   withMethods((store) => ({
     changeFirstName(firstName: string) {
       patchState(store, { firstName });
@@ -218,7 +218,7 @@ Example of `withHooks` usage:
 
 ```ts
 export const HelloStore = signalStore(
-  withState({ firstName: "John", lastName: "Doe" }),
+  withState({ firstName: 'John', lastName: 'Doe' }),
   withComputed(({ firstName }, articlesService = inject(AddressStore)) => ({
     name: computed(() => firstName().toUpperCase()),
     nameAndAddress: computed(
@@ -233,10 +233,10 @@ export const HelloStore = signalStore(
   withHooks(({ firstName, changeFirstName }) => {
     return {
       onInit() {
-        changeFirstName("Nick");
+        changeFirstName('Nick');
       },
       onDestroy() {
-        console.log("firstName on destroy", firstName());
+        console.log('firstName on destroy', firstName());
       },
     };
   }),
@@ -253,11 +253,11 @@ The patchState utility function provides a type-safe way to perform immutable up
   By default, it's not possible to modify the state of a Signal Store externally (e.g from a component). However, if for some reason you need to modify the state outside the Store, you need to set `{ protectedState: false }` when creating the Signal Store. This is not recommended though.
 
 ```ts
-import { signalStore, withState } from "@ngrx/signals";
+import { signalStore, withState } from '@ngrx/signals';
 
 export const HelloStore = signalStore(
   { protectedState: false },
-  withState({ firstName: "John", lastName: "Doe" }),
+  withState({ firstName: 'John', lastName: 'Doe' }),
 );
 ```
 
@@ -346,8 +346,8 @@ Now this custom feature can be used from any store in our application like this:
 
 ```ts
 export const HelloStore = signalStore(
-  { providedIn: "root" },
-  withState({ firstName: "John", lastName: "Doe", phone: "616333843" }),
+  { providedIn: 'root' },
+  withState({ firstName: 'John', lastName: 'Doe', phone: '616333843' }),
   withComputed(({ firstName, lastName, phone }) => ({
     nameAndPhone: computed(() => `${firstName} ${lastName} ${phone}`),
   })),
@@ -405,7 +405,7 @@ export function withClipboard<Prop extends string>(
   const { copyKey } = getClipboardMethodsKeys(options.prefix);
 
   return signalStoreFeature(
-    withState({ [textKey]: "", [copiedKey]: false }),
+    withState({ [textKey]: '', [copiedKey]: false }),
     withMethods((store, clipboard = inject(Clipboard)) => ({
       [copyKey](value: string) {
         clipboard.copy(value);
@@ -427,14 +427,14 @@ And this is how we can use it in the store:
 
 ```ts
 export const HelloStore = signalStore(
-  { providedIn: "root" },
-  withState({ firstName: "John", lastName: "Doe", phone: "616333843" }),
+  { providedIn: 'root' },
+  withState({ firstName: 'John', lastName: 'Doe', phone: '616333843' }),
   withComputed(({ firstName, lastName, phone }) => ({
     nameAndPhone: computed(() => `${firstName} ${lastName} ${phone}`),
   })),
-  withClipboard({ prefix: "firstName", resetCopiedStateAfter: 1500 }),
-  withClipboard({ prefix: "lastName", resetCopiedStateAfter: 1500 }),
-  withClipboard({ prefix: "phone", resetCopiedStateAfter: 1500 }),
+  withClipboard({ prefix: 'firstName', resetCopiedStateAfter: 1500 }),
+  withClipboard({ prefix: 'lastName', resetCopiedStateAfter: 1500 }),
+  withClipboard({ prefix: 'phone', resetCopiedStateAfter: 1500 }),
 );
 ```
 
