@@ -19,7 +19,7 @@ So, I was positively surprised when I saw the [NgRx SignalStore RFC](https://git
 
 ## Overview of the NgRx Signal Store
 
-The new NgRx Signal Store is an all-in-one functional state management solution for Angular Signals. As you can see in the following diagram, the API for the Signals Store is quite compact. You can create a store using the `signalStore` function. You can handle simple pieces of state using the `signalState`. You can extend the core functionality with custom features using the `signalStoreFeature`. You can integrate RxJS using the `rxMethod` and you can manage entities using the `withEntities` feature. That's it. If you need additional functionality it's super simple to extend it with custom features (which we will explore in one of the next sections).
+The new NgRx Signal Store is an all-in-one functional state management solution for Angular Signals. As you can see in the following diagram, the API for the Signal Store is quite compact. You can create a store using the `signalStore` function. You can handle simple pieces of state using the `signalState`. You can extend the core functionality with custom features using the `signalStoreFeature`. You can integrate RxJS using the `rxMethod` and you can manage entities using the `withEntities` feature. That's it. If you need additional functionality it's super simple to extend it with custom features (which we will explore in one of the next sections).
 
 ![ngrx signals structure](/assets/blog/ngrx-signals-store/ngrx-signal-store-structure.png)
 
@@ -61,7 +61,7 @@ After considering this example, you might be wondering why the NgRx team decided
 
 Indeed, as we will see in the next sections, it's super easy to extend the functionality of the new NgRx Signal Store with custom features, to compose features and to split the code. Also, something not mentioned in the above RFC is that the code becomes more tree-shakeable.
 
-## How the NgRx Signals Store works
+## How the NgRx Signal Store works
 
 ### signalStore
 
@@ -86,6 +86,8 @@ Let's explore what happens internally when we call the `signalStore` function. T
 In the constructor of the created class, the `store features` we have provided will start executing one by one in the specified order. The sequence of features depends on the functionality you desire, progressing from the previous feature to the next. For instance, if you wish to utilize a method declared in the `withMethods` feature within the `withHooks` method, you must include `withMethods` first in the order.
 
 ![ngrx signals store features execution](/assets/blog/ngrx-signals-store/features-execution-2.png)
+
+## Signal Store core features
 
 There are 5 core features provided to us from NgRx. Let's explore what each one of them does:
 
@@ -136,7 +138,7 @@ As mentioned earlier, the features are executed in the order we have specified w
 
 ![ngrx signals store features execution](/assets/blog/ngrx-signals-store/with-state-remove-same-keys-3.png)
 
-Because unintentional overriding might lead to issues that are difficult to detect, the NgRx team might soon improve the developer experience by showing a warning or an error when this happens (open [issue](https://github.com/ngrx/platform/issues/4144)).
+Because unintentional overriding might lead to issues that are difficult to detect, the NgRx team has already introduced a warning which is displayed in development mode if a user tries to override SignalStore members.
 
 ### withMethods
 
@@ -187,24 +189,6 @@ export const ArticleStore = signalStore(
 ```
 
 **_You can find the full implementation of the above store [here](https://github.com/stefanoslig/angular-ngrx-nx-realworld-example-app/blob/main/libs/articles/data-access/src/lib/article.store.ts)_**
-
-### patchState
-
-The patchState utility function provides a type-safe way to perform immutable updates on pieces of state. Due to a recent change to the default equality check function in signals in Angular 17.0.0-next.8 release, it is important to make sure that we update the values of the nested signals of our state in an immutable way. That's because in the new default equality check of the Angular signals, objects are checked by reference. Therefore, if you return the same object, just mutated, your signal will not send a notification indicating that it has been updated. The `patchState` function helps us with this.
-
-<Aside type="tip">
-  By default, it's not possible to modify the state of a Signal Store externally (e.g from a component). However, if for some reason you need to modify the state outside the Store, you need to set `{ protectedState: false }` when creating the Signal Store. This is not recommended though.
-
-```ts
-import { signalStore, withState } from "@ngrx/signals";
-
-export const HelloStore = signalStore(
-  { protectedState: false },
-  withState({ firstName: "John", lastName: "Doe" }),
-);
-```
-
-</Aside>
 
 ### withComputed
 
@@ -257,6 +241,58 @@ export const HelloStore = signalStore(
     };
   }),
 );
+```
+
+## Signal Store standalone methods
+
+### patchState
+
+The patchState utility function provides a type-safe way to perform immutable updates on pieces of state. Due to a recent change to the default equality check function in signals in Angular 17.0.0-next.8 release, it is important to make sure that we update the values of the nested signals of our state in an immutable way. That's because in the new default equality check of the Angular signals, objects are checked by reference. Therefore, if you return the same object, just mutated, your signal will not send a notification indicating that it has been updated. The `patchState` function helps us with this.
+
+<Aside type="tip">
+  By default, it's not possible to modify the state of a Signal Store externally (e.g from a component). However, if for some reason you need to modify the state outside the Store, you need to set `{ protectedState: false }` when creating the Signal Store. This is not recommended though.
+
+```ts
+import { signalStore, withState } from "@ngrx/signals";
+
+export const HelloStore = signalStore(
+  { protectedState: false },
+  withState({ firstName: "John", lastName: "Doe" }),
+);
+```
+
+</Aside>
+
+## RxMethod
+
+Even when working with signals, integrating RxJS into our code can give us extra powers. The `rxMethod` is a standalone factory function that helps us create reactive methods. It returns a function that accepts a static value, signal, or observable as an input argument. If a static value is provided as input, the returned method will be executed only once. If a signal is provided, then it will be re-executed every time the signal notifies that it changed, and when an observable is provided, it will be re-executed every time the observable emits a value.
+
+Example:
+
+```ts
+withMethods((store) => ({
+  logIntervals: rxMethod(
+    pipe(
+      filter((num) => num % 2 === 0),
+      tap((val) => console.log(`Even number: ${val}`))
+    )
+  ),
+})),
+```
+
+In the following component, a new message will be logged every time the `myNumberSignal` signal changes.
+
+```ts
+export class ExampleComponent {
+  readonly helloStore = inject(HelloStore);
+  readonly myNumberSignal = signal(0);
+
+  constructor() {
+    interval(1000).subscribe((value) => this.number.set(value));
+
+    this.helloStore.logIntervals(this.number);
+  }
+}
 ```
 
 ## Customs features
@@ -408,45 +444,13 @@ Now we can see that each element in the page has its own slice in the store.
 
 You can find the full implementation here: [Stackblitz](https://stackblitz.com/edit/stackblitz-starters-2ea27n?file=src%2Fmain.store.ts)
 
-## RxMethod
-
-Even when working with signals, integrating RxJS into our code can give us extra powers. The `rxMethod` is a standalone factory function that helps us create reactive methods. It returns a function that accepts a static value, signal, or observable as an input argument. If a static value is provided as input, the returned method will be executed only once. If a signal is provided, then it will be re-executed every time the signal notifies that it changed, and when an observable is provided, it will be re-executed every time the observable emits a value.
-
-Example:
-
-```ts
-withMethods((store) => ({
-  logIntervals: rxMethod(
-    pipe(
-      filter((num) => num % 2 === 0),
-      tap((val) => console.log(`Even number: ${val}`))
-    )
-  ),
-})),
-```
-
-In the following component, a new message will be logged every time the `myNumberSignal` signal changes.
-
-```ts
-export class ExampleComponent {
-  readonly helloStore = inject(HelloStore);
-  readonly myNumberSignal = signal(0);
-
-  constructor() {
-    interval(1000).subscribe((value) => this.number.set(value));
-
-    this.helloStore.logIntervals(this.number);
-  }
-}
-```
-
 ## Conclusion
 
-If you already use NgRx in a project, I would suggest starting to work with the NgRx Signal Store for introducing new stores. You can easily combine the NgRx Store and the NgRx Signal Store ([example](https://github.com/stefanoslig/angular-ngrx-nx-realworld-example-app/blob/main/libs/articles/data-access/src/lib/article.store.ts#L121)). For a new project, I would strongly suggest starting to work directly with the NgRx Signal Store for state management. This is because it can dramatically reduce boilerplate and, of course, has full support for working with Angular Signals in a structured way.
+If you already use NgRx in a project, I would suggest starting to work with the NgRx Signal Store for introducing new stores. You can easily combine the NgRx Store and the NgRx Signal Store. For a new project, I would strongly suggest starting to work directly with the NgRx Signal Store for state management. This is because it can dramatically reduce boilerplate and, of course, has full support for working with Angular Signals in a structured way.
 
 ## Useful links - examples
 
-- [Example app using NgRx Signal Store - currently migrating from NgRx Store to NgRx Signal Store](https://github.com/stefanoslig/angular-ngrx-nx-realworld-example-app/blob/main/libs/articles/data-access/src/lib/article.store.ts)
+- [Example app using NgRx Signal Store](https://github.com/stefanoslig/angular-ngrx-nx-realworld-example-app)
 - [Stackblitz custom feature - withClipboard](https://stackblitz.com/edit/stackblitz-starters-s3qcsd?file=src%2Fmain.store.ts)
 - [Stackblitz custom feature dynamic properties - withClipboard](https://stackblitz.com/edit/stackblitz-starters-2ea27n?file=src%2Fmain.store.ts)
 - [Other custom features - NgRx toolkit library](https://github.com/angular-architects/ngrx-toolkit)
@@ -455,6 +459,6 @@ If you already use NgRx in a project, I would suggest starting to work with the 
 >
 > \[1\]:RFC: NgRx SignalStore [https://github.com/ngrx/platform/discussions/3796](https://github.com/ngrx/platform/discussions/3796)
 >
-> \[2\]:Signals Store docs [https://ngrx.io/guide/signals/signal-store](https://ngrx.io/guide/signals/signal-store)
+> \[2\]:Signal Store docs [https://ngrx.io/guide/signals/signal-store](https://ngrx.io/guide/signals/signal-store)
 >
 > \[3\]:RFC: Add createComponentStore Function [https://github.com/ngrx/platform/discussions/3769](https://github.com/ngrx/platform/discussions/3769)
