@@ -190,6 +190,61 @@ export const ArticleStore = signalStore(
 
 **_You can find the full implementation of the above store [here](https://github.com/stefanoslig/angular-ngrx-nx-realworld-example-app/blob/main/libs/articles/data-access/src/lib/article.store.ts)_**
 
+### withProps
+
+In the code snippet above you can see how we pass the dependencies we want to use in the `withMethods` as parameters in the method. What if we wanted to use the same dependencies later on another method (e.g withHooks). Then we would have to duplicate the code to include these dependencies. We can avoid this issue by using the new core method `withProps` which was introduced in version 19 of the NgRx Store. The main responsibility of this new method is to share properties that are not computed state, methods or state (so we cannnot add them in any of the other core methods) to the rest of the store. The example above could be rewritten like this:
+
+```ts
+export const ArticleStore = signalStore(
+  { providedIn: 'root' },
+  withState<ArticleState>(articleInitialState),
+  withProps(() => ({
+    _articlesService: inject(ArticlesService),
+    _actionsService: inject(ActionsService),
+    _router: inject(Router),
+  })),
+  withMethods((store) => ({
+    getArticle: rxMethod<string>(
+      pipe(
+        switchMap((slug) =>
+          store._articlesService.getArticle(slug).pipe( // <== the ArticlesService is shared here and in withHooks
+          ...
+          ),
+        ),
+        ...
+  withHooks((store) => {
+    return {
+      onInit() {
+        store._articlesService.getArticle(...) // <== ArticlesService can be used here as well
+      },
+    };
+  }),
+```
+
+Apart from dependencies in the withProps, we can expose signals as Observables
+
+```ts
+
+```
+
+Or even an Angular Resource
+
+```ts
+
+```
+
+<Aside type="caution">
+  By default, it's not possible to modify the state of a Signal Store externally (e.g from a component). However, if for some reason you need to modify the state outside the Store, you need to set `{ protectedState: false }` when creating the Signal Store. This is not recommended though.
+
+```ts
+import { signalStore, withState } from '@ngrx/signals';
+
+export const HelloStore = signalStore(
+  { protectedState: false },
+  withState({ firstName: 'John', lastName: 'Doe' }),
+);
+```
+
 ### withComputed
 
 By utilizing the `withComputed` feature, we can define derived state within our store—state calculated based on one or more slices of our existing state. Similarly to the `withState` and the `withMethods` features, it will override previously defined state slices and methods with the same name.
