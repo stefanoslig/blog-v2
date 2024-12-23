@@ -1,0 +1,126 @@
+---
+import { AstroError } from "astro/errors";
+import { BiInfoCircle, BiRocket } from "react-icons/bi";
+import { BsExclamationOctagon, BsExclamationTriangle } from "react-icons/bs";
+
+const asideVariants = ["note", "tip", "caution", "danger"] as const;
+
+interface Props {
+  type?: (typeof asideVariants)[number];
+  title?: string;
+}
+
+let { type = "note", title } = Astro.props;
+
+if (!asideVariants.includes(type)) {
+  throw new AstroError(
+    "Invalid `type` prop passed to the `<Aside>` component.\n",
+    `Received: ${JSON.stringify(type)}\n` +
+      `Expected one of ${asideVariants.map((i) => JSON.stringify(i)).join(", ")}`
+  );
+}
+
+if (!title) {
+  switch (type) {
+    case "caution":
+      title = "Caution";
+      break;
+    case "danger":
+      title = "Danger";
+      break;
+    case "tip":
+      title = "Tip";
+      break;
+    case "note":
+      title = "Note";
+      break;
+  }
+}
+---
+
+{
+  type === "caution" && (
+    <aside
+      aria-label={title}
+      class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-3"
+      role="alert"
+    >
+      <div class="aside-title-container">
+        <BsExclamationTriangle className="aside-icon" />
+        <span class="font-bold" aria-hidden="true">
+          {title}
+        </span>
+      </div>
+      <slot />
+    </aside>
+  )
+}
+
+{
+  type === "note" && (
+    <aside
+      aria-label={title}
+      class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3"
+      role="alert"
+    >
+      <div class="aside-title-container">
+        <BiInfoCircle className="aside-icon" />
+        <span class="font-bold" aria-hidden="true">
+          {title}
+        </span>
+      </div>
+      <slot />
+    </aside>
+  )
+}
+
+{
+  type === "danger" && (
+    <aside
+      aria-label={title}
+      class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3"
+      role="alert"
+    >
+      <div class="aside-title-container">
+        <BsExclamationOctagon className="aside-icon" />
+        <span class="font-bold" aria-hidden="true">
+          {title}
+        </span>
+      </div>
+      <slot />
+    </aside>
+  )
+}
+
+{
+  type === "tip" && (
+    <aside
+      aria-label={title}
+      class="bg-purple-100 border-l-4 border-purple-500 text-purple-700 p-3"
+      role="alert"
+    >
+      <div class="aside-title-container">
+        <BiRocket className="aside-icon" />
+        <span class="font-bold" aria-hidden="true">
+          {title}
+        </span>
+      </div>
+      <slot />
+    </aside>
+  )
+}
+
+<style>
+  .aside-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .aside-icon {
+    font-size: 1.333em;
+    width: 1em;
+    height: 1em;
+    margin-right: 3px;
+  }
+</style>
