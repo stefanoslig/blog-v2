@@ -15,7 +15,7 @@ import Aside from '@/components/Aside.astro';
 
 When the Angular team introduced the signals API, I started thinking about what a nice solution for the state management of signals would look like. I had the hope that the emerging solution would be a thin layer on top of Angular signals, providing the necessary tools for working with them in a structured and scalable way while minimizing boilerplate. Having worked with [Pinia](https://pinia.vuejs.org/) in the past, the official state management solution for Vue.js, I really liked its simplicity and modularity. Pinia has only a few core concepts and a very compact API which makes it super easy to start working with.
 
-So, I was positively surprised when I saw the [NgRx SignalStore RFC](https://github.com/ngrx/platform/discussions/3796) from the NgRx team. It strongly resembled the simplicity, scalability, and structure of a Pinia store. The NgRx team has released already two stable versions of the NgRx Signal Store package and according to the NgRx team is the recommended local state management library to integrate into your Angular applications. In the following sections, I aim to provide you with all the necessary knowledge to start working and experimenting with this library.
+So, I was positively surprised when I saw the [NgRx SignalStore RFC](https://github.com/ngrx/platform/discussions/3796) from the NgRx team. It strongly resembled the simplicity, scalability, and structure of a Pinia store. The NgRx team has already released two stable versions of the NgRx Signal Store package. In the following sections, I aim to provide you with all the necessary knowledge to start working and experimenting with this library.
 
 ## Overview of the NgRx Signal Store
 
@@ -138,7 +138,7 @@ As mentioned earlier, the features are executed in the order we have specified w
 
 ![ngrx signals store features execution](/assets/blog/ngrx-signals-store/with-state-remove-same-keys-3.png)
 
-Because unintentional overriding might lead to issues that are difficult to detect, the NgRx team has already introduced a warning which is displayed in development mode if a user tries to override SignalStore members.
+Because unintentional overriding can lead to issues that are difficult to detect, the NgRx team has introduced a warning (visible in development mode) whenever a user attempts to override previously defined Signal Store members.
 
 ### withMethods
 
@@ -192,7 +192,11 @@ export const ArticleStore = signalStore(
 
 ### withProps
 
-In the code snippet above you can see how we pass the dependencies we want to use in the `withMethods` as parameters in the method. What if we wanted to use the same dependencies later on another method (e.g withHooks)? Then we would have to duplicate the code to include these dependencies. We can avoid this issue by using the new core method `withProps` which was introduced in version 19 of the NgRx Store. The main responsibility of this new method is to share properties that are not computed state, methods or state (we cannnot add them in any of the other core methods) to the rest of the store. The example above could be rewritten like this:
+In the code snippet above, you can see how we pass the dependencies we want to use in the `withMethods` as parameters to the method. But what if we wanted to use the same dependencies later in another method (e.g., withHooks)? In that case, we would need to duplicate the code to include these dependencies.
+
+We can avoid this issue by using the new core method `withProps`, introduced in version 19 of the NgRx Store. The main responsibility of this new method is to share properties that are not computed state, methods, or state itself (i.e., properties that cannot be added using any of the other core methods) with the rest of the store.
+
+The example above could be rewritten like this:
 
 ```ts
 export const ArticleStore = signalStore(
@@ -207,7 +211,8 @@ export const ArticleStore = signalStore(
     getArticle: rxMethod<string>(
       pipe(
         switchMap((slug) =>
-          store._articlesService.getArticle(slug).pipe( // <== the ArticlesService is shared here and in withHooks
+          // ↓ the ArticlesService is shared here and in withHooks
+          store._articlesService.getArticle(slug).pipe(
           ...
           ),
         ),
@@ -215,13 +220,14 @@ export const ArticleStore = signalStore(
   withHooks((store) => {
     return {
       onInit() {
-        store._articlesService.getArticle(...) // <== ArticlesService can be used here as well
+        // ↓ ArticlesService can be used here as well
+        store._articlesService.getArticle(...)
       },
     };
   }),
 ```
 
-Apart from dependencies in the withProps, we can expose signals as Observables so we don't have to transform them every time to Observables in the consumers of the store.
+Apart from the dependencies in `withProps`, we can expose signals as Observables, so we don't have to transform them into Observables each time they are consumed by the store.
 
 ```ts
 export const HelloStore = signalStore(
@@ -236,7 +242,7 @@ export const HelloStore = signalStore(
 );
 ```
 
-Or even an Angular Resources
+Or we can define Angular Resources
 
 ```ts
 export const ArticleStore = signalStore(
@@ -256,13 +262,15 @@ export const ArticleStore = signalStore(
 ```
 
 <Aside type="caution">
-  I would strongly advice on avoid using the resource or rxResource APIs right
-  now in your NgRx Stores. Apart from the obvious fact that it is an
-  experimental feature, it is a half told story for the moment. You can use the
-  resource to fetch data but only when the full story is told regarding this
-  feature you will be able to use it for PUT, POST, DELETE requests. Because of
-  this limitation, you would have to mix resources with rxMethod for example
-  wich would make your store more complex.
+  I would strongly advise avoiding the use of the resource or rxResource APIs in
+  your NgRx Stores right now. Apart from the obvious fact that they are
+  experimental features, they currently represent an incomplete implementation.
+  While you can use resource to fetch data, the full capabilities of this
+  feature—such as handling PUT, POST, and DELETE requests—are not yet available.
+  Because of this limitation, you would need to mix resource with rxMethod,
+  introduce loading/error states just for some of the requests, while for the
+  rest you would have these states provided by the resource. All these factors
+  would increase the complexity of your store.
 </Aside>
 
 ### withComputed
