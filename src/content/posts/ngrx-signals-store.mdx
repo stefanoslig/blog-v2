@@ -192,7 +192,7 @@ export const ArticleStore = signalStore(
 
 ### withProps
 
-In the code snippet above you can see how we pass the dependencies we want to use in the `withMethods` as parameters in the method. What if we wanted to use the same dependencies later on another method (e.g withHooks). Then we would have to duplicate the code to include these dependencies. We can avoid this issue by using the new core method `withProps` which was introduced in version 19 of the NgRx Store. The main responsibility of this new method is to share properties that are not computed state, methods or state (so we cannnot add them in any of the other core methods) to the rest of the store. The example above could be rewritten like this:
+In the code snippet above you can see how we pass the dependencies we want to use in the `withMethods` as parameters in the method. What if we wanted to use the same dependencies later on another method (e.g withHooks)? Then we would have to duplicate the code to include these dependencies. We can avoid this issue by using the new core method `withProps` which was introduced in version 19 of the NgRx Store. The main responsibility of this new method is to share properties that are not computed state, methods or state (we cannnot add them in any of the other core methods) to the rest of the store. The example above could be rewritten like this:
 
 ```ts
 export const ArticleStore = signalStore(
@@ -221,29 +221,49 @@ export const ArticleStore = signalStore(
   }),
 ```
 
-Apart from dependencies in the withProps, we can expose signals as Observables
+Apart from dependencies in the withProps, we can expose signals as Observables so we don't have to transform them every time to Observables in the consumers of the store.
 
 ```ts
-
+export const HelloStore = signalStore(
+  { providedIn: 'root' },
+  withState({ firstName: 'John', lastName: 'Doe', phone: '616333843' }),
+  withComputed(({ firstName, lastName, phone }) => ({
+    nameAndPhone: computed(() => `${firstName()} ${lastName()} ${phone()}`),
+  })),
+  withProps(({ nameAndPhone }) => ({
+    nameAndPhone$: toObservable(nameAndPhone),
+  })),
+);
 ```
 
-Or even an Angular Resource
+Or even an Angular Resources
 
 ```ts
-
+export const ArticleStore = signalStore(
+  { providedIn: 'root' },
+  withState<ArticleState>(articleInitialState),
+  withProps(() => ({
+    _articlesService: inject(ArticlesService),
+  })),
+  withProps((store) => ({
+    articleResource: rxResource({
+      request: () => store.articleId(),
+      loader: ({ request: id }) => store._articlesService.getArticle(id),
+    }).asReadonly(),
+  })),
+  ...
+  ...
 ```
 
 <Aside type="caution">
-  By default, it's not possible to modify the state of a Signal Store externally (e.g from a component). However, if for some reason you need to modify the state outside the Store, you need to set `{ protectedState: false }` when creating the Signal Store. This is not recommended though.
-
-```ts
-import { signalStore, withState } from '@ngrx/signals';
-
-export const HelloStore = signalStore(
-  { protectedState: false },
-  withState({ firstName: 'John', lastName: 'Doe' }),
-);
-```
+  I would strongly advice on avoid using the resource or rxResource APIs right
+  now in your NgRx Stores. Apart from the obvious fact that it is an
+  experimental feature, it is a half told story for the moment. You can use the
+  resource to fetch data but only when the full story is told regarding this
+  feature you will be able to use it for PUT, POST, DELETE requests. Because of
+  this limitation, you would have to mix resources with rxMethod for example
+  wich would make your store more complex.
+</Aside>
 
 ### withComputed
 
