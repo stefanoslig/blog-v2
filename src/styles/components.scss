@@ -58,6 +58,10 @@
 }
 
 .social-icons-simple {
+  @apply flex;
+  @apply justify-center;
+  @apply items-center;
+
   @apply space-x-2;
   li {
     @apply inline-block;
