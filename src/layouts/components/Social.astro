@@ -9,9 +9,9 @@ import {
   IoLogoMedium,
   IoLogoTwitter,
   IoMail,
-} from "react-icons/io5";
+} from 'react-icons/io5';
 
-const { twitter, linkedin, github, medium, email, phone, website } = source;
+const { twitter, linkedin, github, medium, email, website } = source;
 ---
 
 <ul class={className}>
@@ -90,15 +90,6 @@ const { twitter, linkedin, github, medium, email, phone, website } = source;
       <li class="inline-block">
         <a aria-label="email" href={`mailto:${email}`}>
           <IoMail />
-        </a>
-      </li>
-    )
-  }
-  {
-    phone && (
-      <li class="inline-block">
-        <a aria-label="telephone" href={`tel:${phone}`}>
-          <IoCall />
         </a>
       </li>
     )

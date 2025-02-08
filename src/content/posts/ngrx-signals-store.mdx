@@ -232,7 +232,7 @@ Apart from the dependencies in `withProps`, we can expose signals as Observables
 ```ts
 export const HelloStore = signalStore(
   { providedIn: 'root' },
-  withState({ firstName: 'John', lastName: 'Doe', phone: '616333843' }),
+  withState({ firstName: 'John', lastName: 'Doe', phone: '616321828' }),
   withComputed(({ firstName, lastName, phone }) => ({
     nameAndPhone: computed(() => `${firstName()} ${lastName()} ${phone()}`),
   })),
@@ -430,7 +430,7 @@ Now this custom feature can be used from any store in our application like this:
 ```ts
 export const HelloStore = signalStore(
   { providedIn: 'root' },
-  withState({ firstName: 'John', lastName: 'Doe', phone: '616333843' }),
+  withState({ firstName: 'John', lastName: 'Doe', phone: '616321828' }),
   withComputed(({ firstName, lastName, phone }) => ({
     nameAndPhone: computed(() => `${firstName} ${lastName} ${phone}`),
   })),
@@ -511,7 +511,7 @@ And this is how we can use it in the store:
 ```ts
 export const HelloStore = signalStore(
   { providedIn: 'root' },
-  withState({ firstName: 'John', lastName: 'Doe', phone: '616333843' }),
+  withState({ firstName: 'John', lastName: 'Doe', phone: '616321828' }),
   withComputed(({ firstName, lastName, phone }) => ({
     nameAndPhone: computed(() => `${firstName} ${lastName} ${phone}`),
   })),
