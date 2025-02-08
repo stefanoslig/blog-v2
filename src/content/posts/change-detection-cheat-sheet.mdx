@@ -2,12 +2,20 @@
 title: 'Angular Change Detection Cheat Sheet'
 description: 'This article serves as a cheat sheet, covering Angular’s reactivity model—from Zone.js-based change detection to the more efficient Signals-based approach—optimizing performance with fine-grained updates.'
 image: '/assets/blog/change-detection-cheat-sheet/angular-change-detection.png'
-date: 2024-01-08T05:35:07.322Z
+date: 2025-02-08T05:35:07.322Z
 authors: ['Stefanos Lignos']
 categories: ['Angular']
 tags: ['Angular', 'Angular Signals', 'Change Detection']
 draft: false
 ---
+
+import Aside from '@/components/Aside.astro';
+
+<Aside type="note">
+  You can find the same cheat sheet, along with a visualization tool to
+  experiment with different scenarios, on the
+  [change-detection.guide](https://www.change-detection.guide/).
+</Aside>
 
 ## The need for Reactivity
 
@@ -57,6 +65,8 @@ In this sense, we can think of consumers and producers as interconnected nodes, 
 
 1. The View is marked with the **`RefreshView`** flag.
 2. The **`markAncestorsForTraversal`** function is called, marking all ancestors of the View with the **`HasChildViewsToRefresh`** flag.
+
+Here is a comparison of how change detection behaves when a signal is used in a template versus when an observable with an async pipe is used.
 
 ### Global/Targeted Change Detection
 
