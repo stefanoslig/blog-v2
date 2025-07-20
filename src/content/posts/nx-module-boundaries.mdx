@@ -1,0 +1,28 @@
+---
+title: 'Three ways to set module boundaries in an NX monorepo'
+description: ''
+image: '/assets/blog/nx-module-boundaries/module-boundaries.jpg'
+date: 2025-07-20T05:35:07.322Z
+authors: ['Stefanos Lignos']
+categories: ['Angular']
+tags: ['Angular', 'NX', 'Domain Driven Design', 'Module Boundaries']
+draft: true
+---
+
+import Aside from '@/components/Aside.astro';
+
+## Introduction
+
+When working in a nx monorepo most of the code is organized in many different modules (libraries). These modules can be imported in other modules or applications and this dependencies formulate a dependency graph. In a growing project like this where you have too many different teams working on many different modules, it is crucial to be able to enforce some rules about the architecture of the project. For example in a lot of projects like this, a Domain Driven Design architecture is followed. 
+
+However any architecture in order to be followed from all the developers, ideally there should be rules in place that enforce it. Otherwise there is a high chance that after a while the architecture won;'t be folowed.
+
+- vertical business-oriented sections
+- a structure that remains maintainable,
+- Low Coupling
+- Enabling autonomous teams
+- Reduce cognitive load - discoverable
+- Lack of organization slows down engineers
+- Lack of organization slows down CI
+- Avoid excessive merge conflicts
+- Avoiding cross-team dependencies

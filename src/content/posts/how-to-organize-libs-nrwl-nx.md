@@ -59,4 +59,3 @@ The **utils** libraries are used here to keep some mock data and services for th
 The **model** libraries contain (shared) domain models. It might contain interfaces, types, enums, DTOs, entities, etc.
 
 That was just one example of how you can organize libraries in an Nrwl/Nx monorepo. Of course, every team can define their own structure and library types based on their specific needs. I hope you found this example helpful!
-
