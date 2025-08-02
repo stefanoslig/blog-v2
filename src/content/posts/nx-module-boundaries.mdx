@@ -15,7 +15,14 @@ import Aside from '@/components/Aside.astro';
 
 When working in a nx monorepo most of the code is organized in many different modules (libraries). These modules can be imported in other modules or applications and this dependencies formulate a dependency graph. In a growing project like this where you have too many different teams working on many different modules, it is crucial to be able to enforce some rules about the architecture of the project. For example in a lot of projects like this, a Domain Driven Design architecture is followed. 
 
+### graph
+
+![graph](/assets/blog/nx-module-boundaries/graph.png)
+- arrows going down
+- preffered duplication and encapsulation over API pattern.
+
 However any architecture in order to be followed from all the developers, ideally there should be rules in place that enforce it. Otherwise there is a high chance that after a while the architecture won;'t be folowed.
+
 
 - vertical business-oriented sections
 - a structure that remains maintainable,
@@ -26,3 +33,113 @@ However any architecture in order to be followed from all the developers, ideall
 - Lack of organization slows down CI
 - Avoid excessive merge conflicts
 - Avoiding cross-team dependencies
+- Modular monolith
+
+Applied Rules:
+First dimension - Scope rules
+- An application can import dependencies only from libraries, not from other applications.
+-   - The libraries an application depends on are only of type `shell` and of type `model`.
+- Libraries in the learnings domain can depend only on libraries that belong in the same domain or libraries that belong to the shared domain. They cannot depend on libraries from other domains (strict isolation) and of course they cannot import from the application. 
+-   -  The libraries of type feature can depend on any other type of libraries (from the same domain because of the previous rule).
+-   -  The libraries of type data-access can depend on "type:util", "type:model", "type:data-access"
+-   -  The libraries of type ui can depend on "type:util", "type:model", "type:ui"
+-   -  The libraries of type model can depend on "type:model"
+-   -  The libraries of type util, can depend on "type:model", "type:util"
+-   -  The libraries of type shell, can depend on "type:shell", "type:model", "type:feature"
+-   -  The libraries of type feature, can depend on "type:feature", "type:model", "type:data-access", "type:ui", "type:util"
+- Libraries in the users domain can depend only on libraries that belong in the same domain or libraries that belong to the shared domain. They cannot depend on libraries from other domains (strict isolation) and of course they cannot import from the application. 
+
+### 1. Nx Module Boundaries
+
+```json
+"@nx/enforce-module-boundaries": [
+    "error",
+    {
+    "enforceBuildableLibDependency": true,
+    "allow": [],
+    "depConstraints": [
+        {
+        "sourceTag": "scope:learning-webapp",
+        "onlyDependOnLibsWithTags": [
+            "scope:learning-webapp",
+            "scope:shared",
+            "scope:learnings",
+            "scope:users"
+        ]
+        },
+        {
+        "sourceTag": "type:app",
+        "onlyDependOnLibsWithTags": [
+            "type:shell",
+            "type:model"
+        ]
+        },
+        {
+        "sourceTag": "scope:learnings",
+        "onlyDependOnLibsWithTags": [
+            "scope:learnings",
+            "scope:shared"
+        ]
+        },
+        {
+        "sourceTag": "scope:users",
+        "onlyDependOnLibsWithTags": [
+            "scope:users",
+            "scope:shared"
+        ]
+        },
+        {
+        "sourceTag": "type:shell",
+        "onlyDependOnLibsWithTags": [
+            "type:shell",
+            "type:model",
+            "type:feature"
+        ]
+        },
+        {
+        "sourceTag": "type:util",
+        "onlyDependOnLibsWithTags": [
+            "type:model",
+            "type:util"
+        ]
+        },
+        {
+        "sourceTag": "type:model",
+        "onlyDependOnLibsWithTags": [
+            "type:model"
+        ]
+        },
+        {
+        "sourceTag": "type:data-access",
+        "onlyDependOnLibsWithTags": [
+            "type:util",
+            "type:model",
+            "type:data-access"
+        ]
+        },
+        {
+        "sourceTag": "type:ui",
+        "onlyDependOnLibsWithTags": [
+            "type:util",
+            "type:model",
+            "type:ui"
+        ]
+        },
+        {
+        "sourceTag": "type:feature",
+        "onlyDependOnLibsWithTags": [
+            "type:feature",
+            "type:model",
+            "type:data-access",
+            "type:ui",
+            "type:util"
+        ]
+        }
+    ]
+    }
+]
+```
+
+### 2. Deps Cruise
+
+### 3. Sheriff
