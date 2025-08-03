@@ -142,4 +142,111 @@ First dimension - Scope rules
 
 ### 2. Deps Cruise
 
+```js
+{
+    name: "no-cross-domains",
+    comment:
+    "One library should not depend on another domain's library. Dependencies from shared are allowed.",
+    severity: "error",
+    from: {
+    path: "^libs/(?!(shared))([^/]+)"
+    },
+    to: {
+    path: "^libs/(?!(shared))",
+    pathNot: "^libs/\\$1"
+    }
+},
+{
+    name: "no-lib-to-app-deps",
+    comment:
+    "One application should not depend only on shell or model libraries. ",
+    severity: "error",
+    from: {
+    path: "^apps/"
+    },
+    to: {
+    path: "^libs/",
+    pathNot: "^libs/[^/]+/(?:shell|model)(?:/|$)"  
+    }
+},
+{
+    name: 'data-access-lib-restricted-deps',
+    comment:
+    'Libraries of type data-access should depend only on libs of type data-access, model or utils-testing',
+    severity: 'error',
+    from: {
+    path: '^libs/[^/]+/data-access'  
+    },
+    to: {
+    path: '^libs/',
+    pathNot: '^libs/[^/]+/(?:data-access|model|utils-testing)(?:/|$)'
+    }
+},
+{
+    name: 'ui-lib-restricted-deps',
+    comment:
+    'Libraries of type ui should depend only on libs of type util, model or ui',
+    severity: 'error',
+    from: {
+    path: '^libs/[^/]+/ui'  
+    },
+    to: {
+    path: '^libs/',
+    pathNot: '^libs/[^/]+/(?:util|model|ui)(?:/|$)'
+    },
+},
+{
+    name: 'model-lib-restricted-deps',
+    comment:
+    'Libraries of type model should depend only on libs of type model',
+    severity: 'error',
+    from: {
+    path: '^libs/[^/]+/model'  
+    },
+    to: {
+    path: '^libs/',
+    pathNot: '^libs/[^/]+/(?:model)(?:/|$)'
+    },
+},
+{
+    name: 'util-lib-restricted-deps',
+    comment:
+    'Libraries of type util should depend only on libs of type model or util',
+    severity: 'error',
+    from: {
+    path: '^libs/[^/]+/util'  
+    },
+    to: {
+    path: '^libs/',
+    pathNot: '^libs/[^/]+/(?:model|util)(?:/|$)'
+    },
+},
+{
+    name: 'shell-lib-restricted-deps',
+    comment:
+    'Libraries of type shell should depend only on libs of type shell, model or feature',
+    severity: 'error',
+    from: {
+    path: '^libs/[^/]+/shell'  
+    },
+    to: {
+    path: '^libs/',
+    pathNot: '^libs/[^/]+/(?:shell|model|feature-[^/]+)(?:/|$)'
+    },
+},
+{
+    name: 'feature-lib-restricted-deps',
+    comment:
+    'Libraries of type feature should depend only on libs of type feature',
+    severity: 'error',
+    from: {
+    path: '^libs/[^/]+/feature-[^/]+'  
+    },
+    to: {
+    path: '^libs/',
+    pathNot: '^libs/[^/]+/(?:feature-[^/]+|model|data-access|ui|util)(?:/|$)'
+    },
+},
+```
+
 ### 3. Sheriff
