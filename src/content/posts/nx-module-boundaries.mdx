@@ -13,27 +13,101 @@ import Aside from '@/components/Aside.astro';
 
 ## Introduction
 
-When working in a nx monorepo most of the code is organized in many different modules (libraries). These modules can be imported in other modules or applications and this dependencies formulate a dependency graph. In a growing project like this where you have too many different teams working on many different modules, it is crucial to be able to enforce some rules about the architecture of the project. For example in a lot of projects like this, a Domain Driven Design architecture is followed. 
+In a previous [article](https://www.stefanos-lignos.dev/posts/how-to-organize-libs-nrwl-nx), I described how you can organise your libraries in an Angular nrwl/nx monorepo. In this article, we're going one step further and I show you how you can set module boundaries and dependency rules for these libraries. I present three different ways to do this, the advantages and the disadvantages of each one of them. 
+
+<Aside type="info">
+  To showcase these tools I used the same [github repo](https://github.com/stefanoslig/organize-nx-libs-article-demo) I used in my previous article. There are three different branches, one for each one of the tools:
+  - Nx Module Boundaries (branch)
+  - Dependency cruiser (branch)
+  - Sheriff (branch)
+</Aside>
+
+When working in a nx monorepo most of the code is organized in many different modules (libraries). These modules can be imported in other modules or applications and these dependencies formulate a dependency graph. In a growing project like this where you have too many different teams working on many different modules, it is crucial to be able to enforce some rules about the architecture of the project. For example in a lot of projects like this, a Domain Driven Design architecture is followed or a  Hexagonal Architecture or your custom Architecture defined from your team. Maintaining an architecture like this in a monorepo can bring a lot of benefits:
+
+- It enables autonomous teams that can work on their own features avoiding cross-team dependepncies and conflicts.
+- It increases the disceoverability in the code and it reduces the cognitive load for the developers.
+- It enables low coupling between the libaries which can also improve CI pipelines times since less projects are affected.
+
+The challenge you will encounter sooner or later is when multiple teams touch the same codebase, there should be rules in place to enforce programmatically the selected architectrue or else the architecture will start to alter and deform.
+
+In the demo project, I have followed a Domain Driven architecture which you can observe in the following graph. Two things to notice in the graph is that:
+
+1. The arrows on every domain going only down. That means that a lower level layer of the architecture cannot have dependencies from an upper level layer.
+2. The second thing is that as you can see, the domains are strictly encapsulated. The domains (users / learnings) don't have any dependency from each other.  Deliberately, I prefered duplicating a common interface than losing the library's encapsulation. Some people prefer adding an API layer from where they share Domain specific logic to other domains but from my experience I'm against this pattern since it gradually opens the door to more and more logic to be shared which at the end becomes unmanageble.
 
 ### graph
-
 ![graph](/assets/blog/nx-module-boundaries/graph.png)
 - arrows going down
 - preffered duplication and encapsulation over API pattern.
 
-However any architecture in order to be followed from all the developers, ideally there should be rules in place that enforce it. Otherwise there is a high chance that after a while the architecture won;'t be folowed.
 
+The above project has the following structure:
 
-- vertical business-oriented sections
-- a structure that remains maintainable,
-- Low Coupling
-- Enabling autonomous teams
-- Reduce cognitive load - discoverable
-- Lack of organization slows down engineers
-- Lack of organization slows down CI
-- Avoid excessive merge conflicts
-- Avoiding cross-team dependencies
-- Modular monolith
+```
+apps
+    > my app
+libs
+    > learnings
+        > data-access
+        > feature-list
+        > feature-search
+        > feature-shell
+        > model
+        > utils-testing
+    > shared
+        > data-access
+        > ui
+        > model
+    > users
+        > data-access
+        > feature-list
+        > feature-search
+        > feature-shell
+        > model
+        > utils-testing
+```
+
+The rules I want to apply to enforce the afforementioned architecture are:
+
+### Applications
+- **Applications** can import dependencies **only from libraries**, not from other applications.
+- Allowed library types:
+  - `shell`
+  - `model`
+
+---
+
+### Domain Isolation
+- **Learnings** domain:
+  - Can depend only on:
+    - Libraries in the **same domain**
+    - Libraries in the **shared** domain
+  - **Cannot** depend on:
+    - Libraries from other domains
+    - Applications
+- **Users** domain:
+  - Can depend only on:
+    - Libraries in the **same domain**
+    - Libraries in the **shared** domain
+  - **Cannot** depend on:
+    - Libraries from other domains
+    - Applications
+
+---
+
+## 2. Library Type Dependency Rules
+
+| **Library Type** | **Can Depend On** |
+|------------------|-------------------|
+| `feature`        | `feature`, `model`, `data-access`, `ui`, `util` |
+| `data-access`    | `util`, `model`, `data-access` |
+| `ui`             | `util`, `model`, `ui` |
+| `model`          | `model` |
+| `util`           | `model`, `util` |
+| `shell`          | `shell`, `model`, `feature` |
+
+---
+
 
 Applied Rules:
 First dimension - Scope rules
@@ -140,7 +214,7 @@ First dimension - Scope rules
 ]
 ```
 
-### 2. Deps Cruise
+### 2. Dependency cruiser
 
 ```js
 {
