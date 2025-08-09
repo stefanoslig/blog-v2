@@ -108,9 +108,28 @@ In my demo project, I have integrated three tools to enforce the afforementioned
 
 #### 1. Nx Module Boundaries
 
-This is the 
+This is the official solution from NX. It's also the simplest solution since it's build-in and it doesn't require any dditional packages in order to work. Spoiler alert, this simplicity comes with limitations, meaning that it's the least flexible solution. You can apply rules only in library level by assigning tags in the `project.json` file. If your project is structured differently and you need to apply rules on sub-folders level, this is not possible.
+
+##### Setup
+
+To enforce module and dependency rules with `Nx Module Boundaries` you need to:
+
+1. Add `tags` on every library. I used two kind of tags(scope, type) in this demo project. Read how multidimensional tags can make our rules better [here](https://nx.dev/recipes/enforce-module-boundaries/tag-multiple-dimensions).
 
 ```json
+{
+  "name": "learnings-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/learnings/data-access/src",
+  "tags": ["type:data-access", "scope:learnings"],
+```
+
+2. After you have defined for each one of the projects, the tags, you can set the rules I defined before in the eslint configuration of the project.
+
+```json
+// .eslintrc.json
+...
 "@nx/enforce-module-boundaries": [
     "error",
     {
@@ -197,7 +216,21 @@ This is the
     ]
     }
 ]
+...
 ```
+
+Pros
+It's a built-in solution, it doesn't require additional external dependencies. It is maintained from the NX team.
+
+It's integrated with ESLint
+
+Scales well
+
+Cons
+It’s not flexible. Rules cannot be defined at the folder level but only on a project level.
+
+Does not support complex rules. We will see how with the other two tools we can define more generic rules reducing boilerplate.
+
 
 #### 2. Dependency cruiser
 
