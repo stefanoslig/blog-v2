@@ -1,11 +1,11 @@
 ---
-title: 'Three ways to set module boundaries in an NX monorepo'
+title: 'Three Ways to Enforce Module Boundaries and Dependency Rules in an Nx Monorepo'
 description: ''
 image: '/assets/blog/nx-module-boundaries/module-boundaries.jpg'
 date: 2025-07-20T05:35:07.322Z
 authors: ['Stefanos Lignos']
 categories: ['Angular']
-tags: ['Angular', 'NX', 'Domain Driven Design', 'Module Boundaries']
+tags: ['Angular', 'NX', 'Domain Driven Design', 'Module Boundaries', 'Dependency Rules']
 draft: true
 ---
 
@@ -13,9 +13,15 @@ import Aside from '@/components/Aside.astro';
 
 ## Introduction
 
-In a previous [article](https://www.stefanos-lignos.dev/posts/how-to-organize-libs-nrwl-nx), I described how you can organise your libraries in an Angular nrwl/nx monorepo. In this article, we're going one step further and I show you how you can set module boundaries and dependency rules for these libraries. I present three different ways to do this, the advantages and the disadvantages of each one of them. 
+In a previous [article](https://www.stefanos-lignos.dev/posts/how-to-organize-libs-nrwl-nx), I gave an example of how you can organise your libraries in an Angular nrwl/nx monorepo. In this article, we're going one step further and I show to you how you can enforce module boundaries and dependency rules for these libraries. I present three different ways to do this with examples, the advantages and the disadvantages of each one of them. 
 
-<Aside type="info">
+Before we start let's clarify the two terms I'm going to use throughout the article:
+
+- **Module boundaries** - It specifies what parts of a module are accesible from outside. All the other parts should not be accessible. For example in an nx library that means that other libraries or apps can access only what is defined in the `index.ts` file of this library and taht deep imports are not allowed.
+
+- **Dependency rules** It specifies which modules are permitted to depend on which other modules. It's more about defining a structure throughout your project. For example that only specific libraries can be imported from an app.  
+
+<Aside type="note">
   To showcase these tools I used the same [github repo](https://github.com/stefanoslig/organize-nx-libs-article-demo) I used in my previous article. There are three different branches, one for each one of the tools:
   - Nx Module Boundaries (branch)
   - Dependency cruiser (branch)
@@ -28,18 +34,16 @@ When working in a nx monorepo most of the code is organized in many different mo
 - It increases the disceoverability in the code and it reduces the cognitive load for the developers.
 - It enables low coupling between the libaries which can also improve CI pipelines times since less projects are affected.
 
-The challenge you will encounter sooner or later is when multiple teams touch the same codebase, there should be rules in place to enforce programmatically the selected architectrue or else the architecture will start to alter and deform.
+The challenge you will encounter sooner or later is when multiple teams touch the same codebase, if there are no rules in place to enforce programmatically the selected architectrue, slowly the architecture starts to alter and deform.
 
-In the demo project, I have followed a Domain Driven architecture which you can observe in the following graph. Two things to notice in the graph is that:
+In the demo project, I have followed an Architecture which you can observe in the following graph. 
+
+![graph](/assets/blog/nx-module-boundaries/graph4.png)
+
+Two things to notice in the graph are:
 
 1. The arrows on every domain going only down. That means that a lower level layer of the architecture cannot have dependencies from an upper level layer.
-2. The second thing is that as you can see, the domains are strictly encapsulated. The domains (users / learnings) don't have any dependency from each other.  Deliberately, I prefered duplicating a common interface than losing the library's encapsulation. Some people prefer adding an API layer from where they share Domain specific logic to other domains but from my experience I'm against this pattern since it gradually opens the door to more and more logic to be shared which at the end becomes unmanageble.
-
-### graph
-![graph](/assets/blog/nx-module-boundaries/graph.png)
-- arrows going down
-- preffered duplication and encapsulation over API pattern.
-
+2. The second thing is that as you can see, the domains are strictly encapsulated. The domains (users / learnings) don't have any dependency from each other.  Deliberately, I prefered duplicating code than losing the library's encapsulation. Some teams prefer adding an API layer in each library from where they share Domain specific logic to other domains but from my experience I'm against this pattern since it gradually opens the door to more and more logic to be shared which at the end becomes unmanageble.
 
 The above project has the following structure:
 
@@ -67,63 +71,44 @@ libs
         > utils-testing
 ```
 
-The rules I want to apply to enforce the afforementioned architecture are:
+To maintain this architecture, I will enforce the following rules:
 
-### Applications
-- **Applications** can import dependencies **only from libraries**, not from other applications.
-- Allowed library types:
-  - `shell`
-  - `model`
+#### Module Boundaries Rules
+- Every module can be accessed only through a public API which is defined in the `index.ts` file under the `src` folder of the module. If an index file is not provided then the module is fully encapsulated (which mean that it can only import other modules).
 
----
+#### Dependency Rules
 
-### Domain Isolation
-- **Learnings** domain:
-  - Can depend only on:
-    - Libraries in the **same domain**
-    - Libraries in the **shared** domain
-  - **Cannot** depend on:
-    - Libraries from other domains
-    - Applications
-- **Users** domain:
-  - Can depend only on:
-    - Libraries in the **same domain**
-    - Libraries in the **shared** domain
-  - **Cannot** depend on:
-    - Libraries from other domains
-    - Applications
+##### Scope-Related Rules
+
+| **Scope** | **Allowed Dependencies** | **Restrictions** |
+|-----------------|--------------------------|------------------|
+| **Application** | Libraries only (no applications) | Cannot import from other applications |
+| **Learnings domain** | Libraries in the same domain<br/>Libraries in the `shared` domain | Cannot depend on libraries from other domains<br/>Cannot import from applications |
+| **Users domain** | Libraries in the same domain<br/>Libraries in the `shared` domain | Cannot depend on libraries from other domains<br/>Cannot import from applications |
 
 ---
 
-## 2. Library Type Dependency Rules
+##### Type-Related Rules
 
-| **Library Type** | **Can Depend On** |
+| **Module Type** | **Can Depend On** |
 |------------------|-------------------|
-| `feature`        | `feature`, `model`, `data-access`, `ui`, `util` |
-| `data-access`    | `util`, `model`, `data-access` |
-| `ui`             | `util`, `model`, `ui` |
-| `model`          | `model` |
-| `util`           | `model`, `util` |
-| `shell`          | `shell`, `model`, `feature` |
+| **feature**        | feature, model, data-access, ui, util |
+| **data-access**    | util, model, data-access |
+| **shell**          | shell, model, feature |
+| **ui**             | util, model, ui |
+| **application**    | shell, model  |
+| **util**           | model, util |
+| **model**         | model |
 
----
+With these rules in place I can be sure my arhitecture can offer the benefits I want in my team and I can set the boundaries I want for my modules. Let's see now what tools we have in order to enforce it programmatically.
 
+### Tools 
 
-Applied Rules:
-First dimension - Scope rules
-- An application can import dependencies only from libraries, not from other applications.
--   - The libraries an application depends on are only of type `shell` and of type `model`.
-- Libraries in the learnings domain can depend only on libraries that belong in the same domain or libraries that belong to the shared domain. They cannot depend on libraries from other domains (strict isolation) and of course they cannot import from the application. 
--   -  The libraries of type feature can depend on any other type of libraries (from the same domain because of the previous rule).
--   -  The libraries of type data-access can depend on "type:util", "type:model", "type:data-access"
--   -  The libraries of type ui can depend on "type:util", "type:model", "type:ui"
--   -  The libraries of type model can depend on "type:model"
--   -  The libraries of type util, can depend on "type:model", "type:util"
--   -  The libraries of type shell, can depend on "type:shell", "type:model", "type:feature"
--   -  The libraries of type feature, can depend on "type:feature", "type:model", "type:data-access", "type:ui", "type:util"
-- Libraries in the users domain can depend only on libraries that belong in the same domain or libraries that belong to the shared domain. They cannot depend on libraries from other domains (strict isolation) and of course they cannot import from the application. 
+In my demo project, I have integrated three tools to enforce the afforementioned tools. There might be more tools out there but these are the tools that I found more interesting to describe in this article.
 
-### 1. Nx Module Boundaries
+#### 1. Nx Module Boundaries
+
+This is the 
 
 ```json
 "@nx/enforce-module-boundaries": [
@@ -214,7 +199,7 @@ First dimension - Scope rules
 ]
 ```
 
-### 2. Dependency cruiser
+#### 2. Dependency cruiser
 
 ```js
 {
@@ -339,7 +324,7 @@ numberOfDependentsLessThan: 2
 },
 ```
 
-### 3. Sheriff
+#### 3. Sheriff
 
 ```ts
 export const config: SheriffConfig = {
