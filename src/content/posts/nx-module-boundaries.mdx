@@ -73,6 +73,8 @@ libs
 
 To maintain this architecture, I will enforce the following rules:
 
+### Rules
+
 #### Module Boundaries Rules
 - Every module can be accessed only through a public API which is defined in the `index.ts` file under the `src` folder of the module. If an index file is not provided then the module is fully encapsulated (which mean that it can only import other modules).
 
@@ -98,7 +100,7 @@ To maintain this architecture, I will enforce the following rules:
 | **ui**             | util, model, ui |
 | **application**    | shell, model  |
 | **util**           | model, util |
-| **model**         | model |
+| **model**          | model |
 
 With these rules in place I can be sure my arhitecture can offer the benefits I want in my team and I can set the boundaries I want for my modules. Let's see now what tools we have in order to enforce it programmatically.
 
@@ -219,20 +221,22 @@ To enforce module and dependency rules with `Nx Module Boundaries` you need to:
 ...
 ```
 
-Pros
-It's a built-in solution, it doesn't require additional external dependencies. It is maintained from the NX team.
+#### Pros
+- It's a built-in solution, it doesn't require additional external dependencies. It is maintained from the NX team.
+- It's integrated with ESLint
+- Scales well
 
-It's integrated with ESLint
-
-Scales well
-
-Cons
-It’s not flexible. Rules cannot be defined at the folder level but only on a project level.
-
-Does not support complex rules. We will see how with the other two tools we can define more generic rules reducing boilerplate.
+#### Cons
+- It’s not flexible. Rules cannot be defined at the folder level but only on a project level.
+- Does not support complex rules. We will see how with the other two tools we can define more generic rules reducing boilerplate.
 
 
 #### 2. Dependency cruiser
+
+[Dependency Cruiser](https://github.com/sverweij/dependency-cruiser) is a framework agnostic tool which you can use to validate the dependency and module boundary rules you have configured. Using it, you can visualize all your dependecies in a graph. The violated rules can be reported either in the graph itself or in text format. This tool is the most flexible between the three I'm presenting in this article and also the most powerful since apart from defining and validating Dependency rules, you can also use it to identify circular dependencies, orphans, code that it's declared as shared but in reality is imported only in one other module, etc.
+
+##### Setup
+Once the dependency-cruiser package is installed and you have run `npx depcruise --init`, a `dependency-cruiser.js` configuration file is generated. This file includes general rules that are useful for any project, such as detecting circular dependencies and dead code. You can remove some or all of these rules if you don't need them in your project. After that you can simply add your rules and the messages the user will see if the rule is violated.
 
 ```js
 {
@@ -341,6 +345,8 @@ Does not support complex rules. We will see how with the other two tools we can 
 },
 ```
 
+With this rule, we identify not 'shared' enough code that maybe has been added in the shared library.
+
 ```js
 {
 name: 'no-unshared-lib',
@@ -356,8 +362,41 @@ numberOfDependentsLessThan: 2
 }
 },
 ```
+https://github.com/stefanoslig/organize-nx-libs-article-demo/tree/dependency-cruiser
+The you can use one of the follwing commands 
+
+```json
+// package.json
+"depcruise:check": "depcruise apps/*/src libs/*/src --exclude '^node_modules'",
+"depcruise:report": "depcruise apps/*/src libs/*/src --exclude '^(node_modules|apps/.+-e2e)' --output-type err-html > dependency-report.html",
+"depcruise:graph": "depcruise apps/*/src libs/*/src --exclude '^(node_modules|apps/.+-e2e)' --output-type ddot | dot -Tsvg | npx depcruise-wrap-stream-in-html > dependency-graph.html"
+```
+
+The violated rules can be represented in a text format:
+
+![violations](/assets/blog/nx-module-boundaries/error-dep-cruise.png)
+
+Or visualized:
+
+![violations](/assets/blog/nx-module-boundaries/visualized-violations_2.png)
+
+##### Pros
+- Very flexible, framework agnostic
+- You can set rules also in the folders level, it doen't depend on the tags you set in each project.
+- Can be used as a more general code quality tool, to identify dead code or circular dependencies. For example, ensuring that a module in a shared library is imported by at least two domains; otherwise, if it is only used by one domain, it should belong to that domain instead of the shared library.
+- You can visualize the violated rules
+
+##### Cons
+- Not integrated with ESLint.
+- Steeper learning curve due to the extended capabilities and richer API it gives you. 
 
 #### 3. Sheriff
+
+[Sheriff](https://github.com/softarc-consulting/sheriff) is a tool designed to enforce module boundaries and dependency rules in TypeScript projects. It's framework agnostic like `Dependency cruiser` and also more powerfull than the built-in solution that nx offers. For example you can also set more fine-grained rules in the folders level (it doesn't depend on the tags of the project.json). However, you cannot add more generic related to code quality rules as you can do with `Dependency cruiser`. It works well with Angular and NX projects (the core maintainer is a GDE for Angular)
+
+Setup
+
+Once the `@softarc/sheriff-core @softarc/eslint-plugin-sheriff` packages are installed and you run `npx sheriff init`, a `sheriff.config.ts` configuration file is generated. 
 
 ```ts
 export const config: SheriffConfig = {
