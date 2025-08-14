@@ -12,7 +12,7 @@ draft: false
 import Aside from '@/components/Aside.astro';
 import { Code } from 'astro:components';
 
-### Introduction
+## Introduction
 
 In a previous [article](https://www.stefanos-lignos.dev/posts/how-to-organize-libs-nrwl-nx), I shared how you can organise your libraries in an Angular Nrwl/Nx monorepo. In this one, we're taking it a step further. I'll show to you how to enforce module boundaries and dependency rules for these libraries. I'll walk you through three different ways to do this, with examples, along with the advantages and the disadvantages of each. 
 
@@ -29,7 +29,7 @@ Before we start, let's clarify the two terms I'm going to use throughout the art
   - Sheriff [branch](https://github.com/stefanoslig/organize-nx-libs-article-demo/tree/sheriff)
 </Aside>
 
-### Why to set Module boundaries and Dependency ruless
+## Why you should set Module boundaries and Dependency rules
 
 When working in a Nx monorepo, most of the code is organized in many different modules (libraries). These modules can be imported in other modules or applications and together they form a dependency graph. In a growing project, especially when you have too many different teams working on many different modules, it's crucial to be able to enforce some rules about the architecture of the project. 
 
@@ -74,16 +74,16 @@ libs
         > model
         > utils-testing`} lang="json" />
 
-### Rules
+## Rules
 
 To keep this architecture intact and prevent drift over time, I’ll be enforcing the following rules:
 
-#### Module Boundaries Rules
+### Module Boundaries Rules
 - Every module can be accessed only through a public API which is defined in the `index.ts` file under the `src` folder of the module. If an index file is not provided, then the module is fully encapsulated meaning it can only import other modules, but nothing can import it.
 
-#### Dependency Rules
+### Dependency Rules
 
-##### Scope-Related Rules
+#### Scope-Related Rules
 
 | **Scope** | **Allowed Dependencies** | **Restrictions** |
 |-----------------|--------------------------|------------------|
@@ -93,7 +93,7 @@ To keep this architecture intact and prevent drift over time, I’ll be enforcin
 
 ---
 
-##### Type-Related Rules
+#### Type-Related Rules
 
 | **Module Type** | **Can Depend On** |
 |------------------|-------------------|
@@ -107,15 +107,15 @@ To keep this architecture intact and prevent drift over time, I’ll be enforcin
 
 With these rules in place, I can be confident that my arhitecture can deliver the benefits I want for my team. Now, let’s take a look at the tools we can use to enforce this programmatically.
 
-### Tools 
+## Tools 
 
 In my demo project, I have integrated three tools to enforce the aforementioned tools. There might be more tools out there but these are the ones I found more interesting to cover in this article.
 
-#### 1. Nx Module Boundaries
+### 1. Nx Module Boundaries
 
 This is the official solution from NX. It's also the simplest solution since it's build-in and it doesn't require any dditional packages to work. Spoiler alert, this simplicity comes with limitations, meaning it's the least flexible solution. You can only apply rules at the library level by assigning tags in the `project.json` file. If your project is structured differently and you need to apply rules at the sub-folder level, this is not possible.
 
-##### Setup
+#### Setup
 
 To enforce module and dependency rules with `Nx Module Boundaries` you need to:
 
@@ -230,11 +230,11 @@ To enforce module and dependency rules with `Nx Module Boundaries` you need to:
 - Does not support complex rules. As we’ll see with the other two tools, we can define more generic rules that reduce boilerplate.
 
 
-#### 2. Dependency cruiser
+### 2. Dependency cruiser
 
 [Dependency Cruiser](https://github.com/sverweij/dependency-cruiser) is a framework agnostic tool which you can use to validate the dependency and module boundary rules you have configured. Using it, you can visualize all your dependecies in a graph. The violated rules can be reported either in the graph itself or in text format. This tool is the most flexible between the three I'm covering in this article and also the most powerful since apart from defining and validating dependency rules, you can also use it to identify circular dependencies, orphans, or code marked as “shared” that’s actually imported by only one other module, and more.
 
-##### Setup
+#### Setup
 Once the dependency-cruiser package is installed and you have run `npx depcruise --init`, a `dependency-cruiser.js` configuration file is generated. This file includes general rules that are useful for any project, such as detecting circular dependencies and dead code. You can remove some or all of these rules if you don't need them in your project. After that you can simply add your rules and the messages the user will see if the rule is violated.
 
 <Code code={`{
@@ -372,21 +372,21 @@ Or visualized:
 
 ![violations](/assets/blog/nx-module-boundaries/visualized-violations_2.png)
 
-##### Pros
+#### Pros
 - Very flexible, framework agnostic
 - You can set rules also at the folders level, it doen't depend on the tags you set in each project.
 - Can also be used as a general code quality tool to identify dead code or circular dependencies. For example, you can ensure that a module in a shared library is imported by at least two domains otherwise, if it’s only used by one domain, it should belong to that domain instead of the shared library.
 - You can visualize the violated rules
 
-##### Cons
+#### Cons
 - Not integrated with ESLint.
 - Steeper learning curve due to the extended capabilities and richer API. 
 
-#### 3. Sheriff
+### 3. Sheriff
 
 [Sheriff](https://github.com/softarc-consulting/sheriff) is a tool designed to enforce module boundaries and dependency rules in TypeScript projects. It's framework agnostic like `Dependency cruiser` and also more powerfull than the built-in solution that Nx offers. For example you can also set more fine-grained rules at the folders level (it doesn't depend on the tags of the project.json). However, you cannot add more generic related to code quality rules as you can do with `Dependency cruiser`. 
 
-##### Setup
+#### Setup
 
 Once the `@softarc/sheriff-core`, `@softarc/eslint-plugin-sheriff` packages are installed and you have run `npx sheriff init`, a `sheriff.config.ts` configuration file is generated. In the `modules` property of this configuration, we can define the modules and set their associated tags. As you can see in the following code snippet, to reduce boilerplate we can leverage `placeholders` lile `scope` and `feature`. In the `depRules` property we can define the dependency rules we have described earlier.
 
@@ -418,16 +418,16 @@ Once the `@softarc/sheriff-core`, `@softarc/eslint-plugin-sheriff` packages are 
 };
 `} lang="ts" />
 
-##### Pros
+#### Pros
 - Very flexible, framework agnostic
 - You can have fine grained rules also in the folders level, it doen't depend on the tags you set in each project.json file.
 - It can be intgrated with eslint or not.
 - Reduced boilerplate
 
-##### Cons
+#### Cons
 - Steeper learning curve than the built-in NX module boundaries solution. For example you need to understand the `automatic tagging` concept or how to configure it based on bareless vs barell modes.
 
-### Conclusion
+## Conclusion
 
 When multiple teams work in a monorepo, it’s important to enforce the chosen architecture, especially around module boundaries and dependency rules programmatically, so it doesn’t drift over time. I explored three tools for this purpose.
 
