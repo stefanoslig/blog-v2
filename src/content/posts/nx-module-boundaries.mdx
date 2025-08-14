@@ -12,7 +12,7 @@ draft: false
 import Aside from '@/components/Aside.astro';
 import { Code } from 'astro:components';
 
-## Introduction
+### Introduction
 
 In a previous [article](https://www.stefanos-lignos.dev/posts/how-to-organize-libs-nrwl-nx), I shared how you can organise your libraries in an Angular Nrwl/Nx monorepo. In this one, we're taking it a step further. I'll show to you how to enforce module boundaries and dependency rules for these libraries. I'll walk you through three different ways to do this, with examples, along with the advantages and the disadvantages of each. 
 
@@ -20,7 +20,7 @@ Before we start, let's clarify the two terms I'm going to use throughout the art
 
 - **Module boundaries** - This defines what parts of a module are accesible from the outside. Everything else should not be accessible. For example, in an Nx library that means that other libraries or apps can only access what's exported in the library's `index.ts` file and deep imports are not allowed.
 
-- **Dependency rules** It specifies which modules are allowed to depend on which other modules. It's more about settings a clear across throughout your project. For example, a dependency rule can state that only specific libraries can be imported into an app.  
+- **Dependency rules** It specifies which modules are allowed to depend on which other modules. It's more about setting a clear architecture across your project. For example, a dependency rule can state that only specific libraries can be imported into an app.  
 
 <Aside type="note">
   To showcase these tools, I used the same [Github repo](https://github.com/stefanoslig/organize-nx-libs-article-demo) from my previous article. There are three different branches, one for each tool:
@@ -28,6 +28,8 @@ Before we start, let's clarify the two terms I'm going to use throughout the art
   - Dependency cruiser [branch](https://github.com/stefanoslig/organize-nx-libs-article-demo/tree/dependency-cruiser)
   - Sheriff [branch](https://github.com/stefanoslig/organize-nx-libs-article-demo/tree/sheriff)
 </Aside>
+
+### Why to set Module boundaries and Dependency ruless
 
 When working in a Nx monorepo, most of the code is organized in many different modules (libraries). These modules can be imported in other modules or applications and together they form a dependency graph. In a growing project, especially when you have too many different teams working on many different modules, it's crucial to be able to enforce some rules about the architecture of the project. 
 
