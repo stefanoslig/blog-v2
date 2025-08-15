@@ -21,7 +21,7 @@ libs
         > data-access
         > feature-list
         > feature-search
-        > feature-shell
+        > shell
         > model
         > utils-testing
     > shared
@@ -32,7 +32,7 @@ libs
         > data-access
         > feature-list
         > feature-search
-        > feature-shell
+        > shell
         > model
         > utils-testing
 ```
@@ -70,7 +70,7 @@ The **ui** type contains dumb (presentational) components. These components are 
 
 ##### Shell layer
 
-The **feature-shell** is the glue between the **feature-...** libs. It is responsible for combining different features into a shell component, which is lazy-loaded via the application's routes. Alternatively, it can export a route configuration that is lazy-loaded from the application's route configuration. In this project, the shell libraries export a route configuration  ([example in repo](https://github.com/stefanoslig/organize-nx-libs-article-demo/blob/master/libs/learnings/feature-shell/src/lib/learnings-feature-shell.routes.ts)), which are lazy loaded from the [application](https://github.com/stefanoslig/organize-nx-libs-article-demo/blob/master/apps/learning-webapp/src/app/app.routes.ts). 
+The **shell** is the glue between the **feature-...** libs. It is responsible for combining different features into a shell component, which is lazy-loaded via the application's routes. Alternatively, it can export a route configuration that is lazy-loaded from the application's route configuration. In this project, the shell libraries export a route configuration  ([example in repo](https://github.com/stefanoslig/organize-nx-libs-article-demo/blob/master/libs/learnings/shell/src/lib/learnings-shell.routes.ts)), which are lazy loaded from the [application](https://github.com/stefanoslig/organize-nx-libs-article-demo/blob/master/apps/learning-webapp/src/app/app.routes.ts). 
 
 ##### Utils layer
 

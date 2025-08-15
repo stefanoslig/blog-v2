@@ -59,7 +59,7 @@ libs
         > data-access
         > feature-list
         > feature-search
-        > feature-shell
+        > shell
         > model
         > utils-testing
     > shared
@@ -70,7 +70,7 @@ libs
         > data-access
         > feature-list
         > feature-search
-        > feature-shell
+        > shell
         > model
         > utils-testing`} lang="json" />
 
@@ -109,7 +109,7 @@ With these rules in place, I can be confident that my arhitecture can deliver th
 
 ## Tools 
 
-In my demo project, I have integrated three tools to enforce the aforementioned tools. There might be more tools out there but these are the ones I found more interesting to cover in this article.
+In my demo project, I have integrated three tools to enforce the aforementioned rules. There might be more tools out there but these are the ones I found more interesting to cover in this article.
 
 ### 1. Nx Module Boundaries
 
@@ -223,7 +223,6 @@ To enforce module and dependency rules with `Nx Module Boundaries` you need to:
 #### Pros
 - It's a built-in solution, it doesn't require additional external dependencies. It is maintained from the NX team.
 - It's integrated with ESLint
-- Scales well
 
 #### Cons
 - It’s not flexible. Rules can only be applied at the project level, not at the folder level.
@@ -235,114 +234,114 @@ To enforce module and dependency rules with `Nx Module Boundaries` you need to:
 [Dependency Cruiser](https://github.com/sverweij/dependency-cruiser) is a framework agnostic tool which you can use to validate the dependency and module boundary rules you have configured. Using it, you can visualize all your dependecies in a graph. The violated rules can be reported either in the graph itself or in text format. This tool is the most flexible between the three I'm covering in this article and also the most powerful since apart from defining and validating dependency rules, you can also use it to identify circular dependencies, orphans, or code marked as “shared” that’s actually imported by only one other module, and more.
 
 #### Setup
-Once the dependency-cruiser package is installed and you have run `npx depcruise --init`, a `dependency-cruiser.js` configuration file is generated. This file includes general rules that are useful for any project, such as detecting circular dependencies and dead code. You can remove some or all of these rules if you don't need them in your project. After that you can simply add your rules and the messages the user will see if the rule is violated.
+Once the dependency-cruiser package is installed and you have run `npx depcruise --init`, a `dependency-cruiser.js` configuration file is generated. This file includes general rules that are useful for any project, such as detecting circular dependencies and dead code. You can remove any of these default rules if they’re not relevant to your project. Then, simply add your own rules along with the messages that will be shown when a rule is violated.
 
 <Code code={`{
-    name: "no-cross-domains",
-    comment:
-    "One library should not depend on another domain's library. Dependencies from shared are allowed.",
-    severity: "error",
-    from: {
-    path: "^libs/(?!(shared))([^/]+)"
+      name: "no-cross-domains",
+      comment:
+        "One library should not depend on another domain's library. Dependencies from shared are allowed.",
+      severity: "error",
+      from: {
+        path: "^libs/(?!(shared))([^/]+)"
+      },
+      to: {
+        path: "^libs/(?!(shared))",
+        pathNot: "^libs/\\$1"
+      }
     },
-    to: {
-    path: "^libs/(?!(shared))",
-    pathNot: "^libs/\\$1"
-    }
-},
-{
-    name: "no-lib-to-app-deps",
-    comment:
-    "One application should not depend only on shell or model libraries. ",
-    severity: "error",
-    from: {
-    path: "^apps/"
+    {
+      name: "no-lib-to-app-deps",
+      comment:
+        "One application should not depend only on shell or model libraries. ",
+      severity: "error",
+      from: {
+        path: "^apps/"
+      },
+      to: {
+        path: "^libs/",
+        pathNot: "^libs/[^/]+/(?:shell|model)(?:/|$)"  
+      }
     },
-    to: {
-    path: "^libs/",
-    pathNot: "^libs/[^/]+/(?:shell|model)(?:/|$)"  
-    }
-},
-{
-    name: 'data-access-lib-restricted-deps',
-    comment:
-    'Libraries of type data-access should depend only on libs of type data-access, model or utils-testing',
-    severity: 'error',
-    from: {
-    path: '^libs/[^/]+/data-access'  
+    {
+      name: 'data-access-lib-restricted-deps',
+      comment:
+        'Libraries of type data-access should depend only on libs of type data-access, model or utils-testing',
+      severity: 'error',
+      from: {
+        path: '^libs/[^/]+/data-access'  
+      },
+      to: {
+        path: '^libs/',
+        pathNot: '^libs/[^/]+/(?:data-access|model|utils-testing)(?:/|$)'
+      }
     },
-    to: {
-    path: '^libs/',
-    pathNot: '^libs/[^/]+/(?:data-access|model|utils-testing)(?:/|$)'
-    }
-},
-{
-    name: 'ui-lib-restricted-deps',
-    comment:
-    'Libraries of type ui should depend only on libs of type util, model or ui',
-    severity: 'error',
-    from: {
-    path: '^libs/[^/]+/ui'  
+    {
+      name: 'ui-lib-restricted-deps',
+      comment:
+        'Libraries of type ui should depend only on libs of type util, model or ui',
+      severity: 'error',
+      from: {
+        path: '^libs/[^/]+/ui'  
+      },
+      to: {
+        path: '^libs/',
+        pathNot: '^libs/[^/]+/(?:util|model|ui)(?:/|$)'
+      },
     },
-    to: {
-    path: '^libs/',
-    pathNot: '^libs/[^/]+/(?:util|model|ui)(?:/|$)'
+    {
+      name: 'model-lib-restricted-deps',
+      comment:
+        'Libraries of type model should depend only on libs of type model',
+      severity: 'error',
+      from: {
+        path: '^libs/[^/]+/model'  
+      },
+      to: {
+        path: '^libs/',
+        pathNot: '^libs/[^/]+/(?:model)(?:/|$)'
+      },
     },
-},
-{
-    name: 'model-lib-restricted-deps',
-    comment:
-    'Libraries of type model should depend only on libs of type model',
-    severity: 'error',
-    from: {
-    path: '^libs/[^/]+/model'  
+    {
+      name: 'util-lib-restricted-deps',
+      comment:
+        'Libraries of type util should depend only on libs of type model or util',
+      severity: 'error',
+      from: {
+        path: '^libs/[^/]+/util'  
+      },
+      to: {
+        path: '^libs/',
+        pathNot: '^libs/[^/]+/(?:model|util)(?:/|$)'
+      },
     },
-    to: {
-    path: '^libs/',
-    pathNot: '^libs/[^/]+/(?:model)(?:/|$)'
+    {
+      name: 'shell-lib-restricted-deps',
+      comment:
+        'Libraries of type shell should depend only on libs of type shell, model or feature',
+      severity: 'error',
+      from: {
+        path: '^libs/[^/]+/shell'  
+      },
+      to: {
+        path: '^libs/',
+        pathNot: '^libs/[^/]+/(?:shell|model|feature-[^/]+)(?:/|$)'
+      },
     },
-},
-{
-    name: 'util-lib-restricted-deps',
-    comment:
-    'Libraries of type util should depend only on libs of type model or util',
-    severity: 'error',
-    from: {
-    path: '^libs/[^/]+/util'  
-    },
-    to: {
-    path: '^libs/',
-    pathNot: '^libs/[^/]+/(?:model|util)(?:/|$)'
-    },
-},
-{
-    name: 'shell-lib-restricted-deps',
-    comment:
-    'Libraries of type shell should depend only on libs of type shell, model or feature',
-    severity: 'error',
-    from: {
-    path: '^libs/[^/]+/shell'  
-    },
-    to: {
-    path: '^libs/',
-    pathNot: '^libs/[^/]+/(?:shell|model|feature-[^/]+)(?:/|$)'
-    },
-},
-{
-    name: 'feature-lib-restricted-deps',
-    comment:
-    'Libraries of type feature should depend only on libs of type feature',
-    severity: 'error',
-    from: {
-    path: '^libs/[^/]+/feature-[^/]+'  
-    },
-    to: {
-    path: '^libs/',
-    pathNot: '^libs/[^/]+/(?:feature-[^/]+|model|data-access|ui|util)(?:/|$)'
-    },
-},`} lang="js" />
+    {
+      name: 'feature-lib-restricted-deps',
+      comment:
+        'Libraries of type feature should depend only on every type except shell',
+      severity: 'error',
+      from: {
+        path: '^libs/[^/]+/feature-[^/]+'  
+      },
+      to: {
+        path: '^libs/',
+        pathNot: '^libs/[^/]+/(?:feature-[^/]+|model|data-access|ui|util)(?:/|$)'
+      },
+    },`} lang="js" />
 
-With this rule, we identify not 'shared' enough code that maybe has been added in the shared library.
+The following rule helps identify code in the shared library that isn’t truly “shared”. For example, modules that are only used by a single domain and should probably be moved there instead.
 
 <Code code={`{
     name: 'no-unshared-lib',
@@ -357,18 +356,17 @@ With this rule, we identify not 'shared' enough code that maybe has been added i
     }
 },`} lang="js" />
 
-https://github.com/stefanoslig/organize-nx-libs-article-demo/tree/dependency-cruiser
-The you can use one of the follwing commands 
+To validate the rules in your project, run one of the following commands:
 
 <Code code={`"depcruise:check": "depcruise apps/*/src libs/*/src --exclude '^node_modules'",
 "depcruise:report": "depcruise apps/*/src libs/*/src --exclude '^(node_modules|apps/.+-e2e)' --output-type err-html > dependency-report.html",
 "depcruise:graph": "depcruise apps/*/src libs/*/src --exclude '^(node_modules|apps/.+-e2e)' --output-type ddot | dot -Tsvg > dependency-graph.html"`} lang="json" />
 
-The violated rules can be represented in a text format:
+Rule violations can be displayed in a text format:
 
 ![violations](/assets/blog/nx-module-boundaries/error-dep-cruise.png)
 
-Or visualized:
+Rule violations can also be visualized as a graph:
 
 ![violations](/assets/blog/nx-module-boundaries/visualized-violations_2.png)
 
@@ -384,7 +382,7 @@ Or visualized:
 
 ### 3. Sheriff
 
-[Sheriff](https://github.com/softarc-consulting/sheriff) is a tool designed to enforce module boundaries and dependency rules in TypeScript projects. It's framework agnostic like `Dependency cruiser` and also more powerfull than the built-in solution that Nx offers. For example you can also set more fine-grained rules at the folders level (it doesn't depend on the tags of the project.json). However, you cannot add more generic related to code quality rules as you can do with `Dependency cruiser`. 
+[Sheriff](https://github.com/softarc-consulting/sheriff) is a tool designed to enforce module boundaries and dependency rules in TypeScript projects. It's framework agnostic like `Dependency cruiser` and also more powerfull than the built-in solution that Nx offers. For example, you can define more fine-grained rules at the folder level, without relying on the `project.json` tags. However, unlike Dependency Cruiser, you can’t add broader code-quality rules.
 
 #### Setup
 
