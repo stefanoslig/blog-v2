@@ -40,8 +40,8 @@ import FooterBackground from '../../../public/assets/footer.svg';
     justify-content: center;
   }
 
-  .footer-social {
-    bottom: 5rem;
-    position: absolute;
+  .footer-social { position: absolute; bottom: auto; }
+  @media (min-width: 768px) {
+    .footer-social { position: absolute; bottom: 5rem; }
   }
 </style>
