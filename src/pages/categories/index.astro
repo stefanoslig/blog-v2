@@ -1,31 +1,38 @@
 ---
+// src/pages/categories/index.astro
 import Base from "@/layouts/Base.astro";
-import { getTaxonomy } from "@/lib/taxonomyParser.astro";
-import { humanize } from "@/lib/utils/textConverter";
+import { getSinglePage } from "@/lib/contentParser.astro";
+import { slugify, humanize } from "@/lib/utils/textConverter";
+import type { CollectionEntry } from "astro:content";
 
-const categories = await getTaxonomy("posts", "categories");
+const posts: CollectionEntry<"posts">[] = await getSinglePage("posts");
 
-import { BiCategoryAlt } from "react-icons/bi";
+const counts = new Map<string, number>();
+for (const p of posts) {
+  for (const c of p.data.categories ?? []) {
+    counts.set(c, (counts.get(c) ?? 0) + 1);
+  }
+}
+const categories = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
 ---
 
-<Base title={"Categories"}>
-  <section class="section">
-    <div class="container text-center">
-      <h1 class="h2 page-heading">Categories</h1>
-      <ul class="space-x-4">
-        {
-          categories.map((category) => (
-            <li class="inline-block">
-              <a
-                href={`/categories/${category}`}
-                class="rounded-lg bg-theme-light px-4 py-2 text-dark transition hover:bg-primary hover:text-white flex items-center group"
-              >
-                <BiCategoryAlt className="mr-1 text-primary group-hover:text-white transition h-6 w-6 scale-75" />
-                <>{humanize(category || "")}</>
-              </a>
-            </li>
-          ))
-        }
+<Base title="Categories">
+  <section class="taxonomy">
+    <div class="taxonomy-inner">
+      <a href="/" class="taxonomy-back">← Back to Writing</a>
+      <header class="taxonomy-header">
+        <div class="kicker">CATEGORIES</div>
+        <h1 class="display-title">All categories</h1>
+      </header>
+      <ul class="taxonomy-grid">
+        {categories.map(([cat, count]) => (
+          <li>
+            <a href={`/categories/${slugify(cat)}`} class="taxonomy-chip">
+              <span>{humanize(cat)}</span>
+              <span class="taxonomy-count">{count}</span>
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   </section>

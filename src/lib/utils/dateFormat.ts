@@ -5,7 +5,7 @@ dayjs.extend(utc);
 
 const dateFormat = (
   date: Date | string,
-  pattern: string = "dd MMM, YYYY",
+  pattern: string = "DD MMM, YYYY",
 ): string => {
   return dayjs(date).utc().format(pattern);
 };

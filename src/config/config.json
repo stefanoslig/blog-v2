@@ -4,15 +4,7 @@
     "base_url": "https://www.stefanos-lignos.dev/",
     "base_path": "/",
     "trailing_slash": false,
-    "favicon": "assets/favicon.ico",
-    "logo": "/assets/my-photo-2.jpg",
-    "logo_width": "200",
-    "logo_height": "34",
-    "logo_text": "Stefanos Lignos"
-  },
-  "settings": {
-    "pagination": 10,
-    "summary_length": 200
+    "favicon": "assets/favicon.ico"
   },
   "metadata": {
     "meta_author": "Stefanos Lignos",
@@ -20,9 +12,6 @@
     "meta_description": "Stefanos Lignos - Blog"
   },
   "params": {
-    "copyright": "Copyright © 2025 Stefanos Lignos"
-  },
-  "contactinfo": {
-    "email": "stefanoslignos@gmail.com"
+    "copyright": "Copyright © 2026 Stefanos Lignos"
   }
 }

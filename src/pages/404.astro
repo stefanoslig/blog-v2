@@ -1,20 +1,59 @@
 ---
+// src/pages/404.astro
 import Base from "@/layouts/Base.astro";
-import { markdownify } from "@/lib/utils/textConverter";
-import { getEntryBySlug } from "astro:content";
-const entry = await getEntryBySlug("pages", "404");
-const { Content } = await entry.render();
 ---
 
-<Base title={entry.data.title}>
-  <section class="section">
-    <div class="container">
-      <div class="flex h-[40vh] items-center justify-center">
-        <div class="text-center">
-          <h1 class="mb-4" set:html={markdownify(entry.data.title)} />
-          <Content />
-        </div>
-      </div>
+<Base title="Not found" noindex>
+  <section class="notfound">
+    <div class="notfound-inner">
+      <div class="notfound-num serif-italic">404</div>
+      <h1 class="notfound-title">This page has wandered off.</h1>
+      <p class="notfound-desc">The link you followed may be broken, or the page may have been moved.</p>
+      <a href="/" class="notfound-link">← Back to Writing</a>
     </div>
   </section>
 </Base>
+
+<style>
+  .notfound {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+  }
+  .notfound-inner { max-width: 480px; text-align: center; }
+  .notfound-num {
+    font-family: var(--font-serif), serif;
+    font-style: italic;
+    font-size: 120px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--color-accent);
+    margin-bottom: 20px;
+  }
+  .notfound-title {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    line-height: 1.1;
+  }
+  .notfound-desc {
+    color: var(--color-fg-secondary);
+    font-size: 16px;
+    margin: 0 0 28px;
+    line-height: 1.5;
+  }
+  .notfound-link {
+    display: inline-block;
+    font-family: var(--font-mono), monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 2px;
+  }
+</style>

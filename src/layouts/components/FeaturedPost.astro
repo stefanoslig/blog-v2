@@ -1,0 +1,116 @@
+---
+// src/components/FeaturedPost.astro
+import type { CollectionEntry } from "astro:content";
+import dateFormat from "@/lib/utils/dateFormat";
+import readingTime from "@/lib/utils/readingTime";
+import { humanize } from "@/lib/utils/textConverter";
+
+export interface Props {
+  post: CollectionEntry<"posts">;
+  index?: string; // e.g. "01"
+}
+
+const { post, index = "01" } = Astro.props;
+const { title, description, date, categories } = post.data;
+// post.body may be undefined in Astro 6 content layer; hide the badge when unavailable
+const body = (post.body as string | undefined) ?? "";
+const minutes = body ? readingTime(body) : null;
+const primaryCategory = (categories && categories[0]) ? humanize(categories[0]) : "";
+---
+
+<article class="featured">
+  <a href={`/posts/${post.id}`} class="featured-link">
+    <div class="featured-num">
+      <span>{index}</span><span class="featured-num-dot">.</span>
+    </div>
+
+    <div class="featured-body">
+      <div class="featured-kicker">
+        <span class="featured-label">LATEST</span>
+        {primaryCategory && <><span class="featured-sep">·</span><span>{primaryCategory.toUpperCase()}</span></>}
+        {minutes !== null && (
+          <>
+            <span class="featured-sep">·</span>
+            <span>{minutes} MIN READ</span>
+          </>
+        )}
+      </div>
+
+      <h1 class="featured-title">{title}</h1>
+
+      {description && <p class="featured-desc">{description}</p>}
+
+      <div class="featured-meta">
+        {date && <span>{dateFormat(date)}</span>}
+        <span class="featured-arrow">READ →</span>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .featured {
+    padding: 28px 0 32px;
+    border-top: 2px solid var(--color-fg);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .featured-link {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 20px;
+    color: inherit;
+    align-items: start;
+  }
+  .featured-num {
+    font-family: var(--font-mono), monospace;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--color-fg);
+  }
+  .featured-num-dot { color: var(--color-accent); }
+  .featured-kicker {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--color-fg-muted);
+    margin-bottom: 10px;
+  }
+  .featured-kicker .featured-label { color: var(--color-accent); font-weight: 500; }
+  .featured-kicker .featured-sep { margin: 0 6px; opacity: 0.6; }
+  .featured-title {
+    font-size: clamp(26px, 2.4vw + 14px, 36px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+    color: var(--color-fg);
+  }
+  .featured-link:hover .featured-title { color: var(--color-accent); }
+  .featured-desc {
+    font-size: 15px;
+    color: var(--color-fg-secondary);
+    margin: 0 0 14px;
+    line-height: 1.5;
+    max-width: 620px;
+  }
+  .featured-meta {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--color-fg-muted);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .featured-arrow {
+    margin-left: auto;
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+  @media (max-width: 540px) {
+    .featured-link { grid-template-columns: 1fr; gap: 12px; }
+    .featured-num { font-size: 28px; }
+  }
+</style>

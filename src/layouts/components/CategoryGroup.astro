@@ -1,0 +1,54 @@
+---
+// src/components/CategoryGroup.astro
+import type { CollectionEntry } from "astro:content";
+import PostList from "@/components/PostList.astro";
+import { slugify, humanize } from "@/lib/utils/textConverter";
+
+export interface Props {
+  category: string;
+  posts: CollectionEntry<"posts">[];
+}
+
+const { category, posts } = Astro.props;
+const slug = slugify(category);
+const label = humanize(category);
+---
+
+<section class="cat-group">
+  <header class="cat-group-header">
+    <h2 class="cat-group-label">
+      <a href={`/categories/${slug}`}>{label}</a>
+    </h2>
+    <span class="cat-group-count">{posts.length} {posts.length === 1 ? "ARTICLE" : "ARTICLES"}</span>
+  </header>
+  <PostList posts={posts} />
+</section>
+
+<style>
+  .cat-group { margin-top: 48px; }
+  .cat-group-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-fg);
+    margin-bottom: 0;
+  }
+  .cat-group-label {
+    font-family: var(--font-mono), monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .cat-group-label a { color: var(--color-fg); }
+  .cat-group-label a:hover { color: var(--color-accent); }
+  .cat-group-count {
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--color-fg-muted);
+  }
+</style>
