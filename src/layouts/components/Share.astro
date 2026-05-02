@@ -1,33 +1,45 @@
 ---
+// src/layouts/components/Share.astro
 import config from "@/config/config.json";
-import {
-  IoLogoLinkedin,
-  IoLogoTwitter,
-} from "react-icons/io5";
 
-const { base_url } = config.site;
-const { title, description, slug, className } = Astro.props;
+export interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  className?: string;
+}
+
+const { title, slug, className = "" } = Astro.props;
+const url = `${config.site.base_url}/posts/${slug}`;
 ---
 
-<ul class={`${className}`}>
-  <li class="inline-block">
-    <a
-      aria-label="twitter share button"
-      href={`https://x.com/intent/tweet/?text=${title}&amp;url=${base_url}/${slug}`}
-      target="_blank"
-      rel="noreferrer noopener"
-    >
-      <IoLogoTwitter />
-    </a>
-  </li>
-  <li class="inline-block">
-    <a
-      aria-label="linkedin share button"
-      href={`https://www.linkedin.com/shareArticle?mini=true&url=${base_url}/${slug}&title=${title}&summary=${description}&source=${base_url}`}
-      target="_blank"
-      rel="noreferrer noopener"
-    >
-      <IoLogoLinkedin />
-    </a>
-  </li>
-</ul>
+<div class:list={["share", className]}>
+  <span class="share-label">Share</span>
+  <a
+    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Share on Twitter/X"
+  >X</a>
+  <a
+    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Share on LinkedIn"
+  >LinkedIn</a>
+</div>
+
+<style>
+  .share {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .share-label { color: var(--color-fg-muted); }
+  .share a { color: var(--color-fg-secondary); }
+  .share a:hover { color: var(--color-accent); }
+</style>

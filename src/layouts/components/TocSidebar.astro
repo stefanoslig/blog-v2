@@ -1,0 +1,51 @@
+---
+// src/layouts/components/TocSidebar.astro
+// Sticky right-column TOC, visible at ≥900px.
+import type { MarkdownHeading } from "astro";
+
+export interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((h: MarkdownHeading) => h.depth === 2 || h.depth === 3);
+---
+
+{items.length > 0 && (
+  <aside class="toc-sidebar" aria-label="Table of contents">
+    <h2 class="toc-sidebar-title">Contents</h2>
+    <ol class="toc-sidebar-list">
+      {items.map((h: MarkdownHeading) => (
+        <li class:list={[`toc-depth-${h.depth}`]}>
+          <a href={`#${h.slug}`} class="toc-link" data-target={h.slug}>{h.text}</a>
+        </li>
+      ))}
+    </ol>
+  </aside>
+)}
+
+<style>
+  .toc-sidebar {
+    display: none;
+    position: sticky;
+    top: 90px;
+    align-self: start;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    font-family: var(--font-mono), monospace;
+  }
+  @media (min-width: 900px) {
+    .toc-sidebar { display: block; }
+  }
+  .toc-sidebar-title {
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    margin: 0 0 10px;
+  }
+  .toc-sidebar-list { list-style: none; margin: 0; padding: 0; }
+  .toc-sidebar-list .toc-depth-3 { padding-left: 12px; }
+</style>

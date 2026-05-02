@@ -1,143 +1,193 @@
 ---
-import { Image } from "astro:assets";
-import Share from "@/components/Share.astro";
-import SimilarPosts from "@/components/SimilarPosts.astro";
-import { getSinglePage } from "@/lib/contentParser.astro";
+// src/layouts/PostSingle.astro
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
 import dateFormat from "@/lib/utils/dateFormat";
-import similerItems from "@/lib/utils/similarItems";
+import readingTime from "@/lib/utils/readingTime";
+import similarItems from "@/lib/utils/similarItems";
 import { humanize, markdownify, slugify } from "@/lib/utils/textConverter";
-import { BiCalendarEdit, BiCategoryAlt } from "react-icons/bi";
-import RightSidebar from "./components/RightSidebar.astro";
+import { getSinglePage } from "@/lib/contentParser.astro";
+import TocSidebar from "@/components/TocSidebar.astro";
+import TocDisclosure from "@/components/TocDisclosure.astro";
+import { tocScrollSyncScript } from "@/components/toc-scroll-sync";
+import PostList from "@/components/PostList.astro";
+import Share from "@/components/Share.astro";
+import config from "@/config/config.json";
 
-const allAuthors = await getSinglePage("authors");
-const posts = await getSinglePage("posts");
+export interface Props {
+  post: CollectionEntry<"posts">;
+}
+
 const { post } = Astro.props;
-const similarPosts = similerItems(post, posts, post.slug);
-const { Content, remarkPluginFrontmatter, headings } = await post.render();
-const { title, description, authors, categories, image, date, tags } =
-  post.data;
+const posts = await getSinglePage("posts");
+const similar = similarItems(post, posts, post.id).slice(0, 3);
+
+const { Content, remarkPluginFrontmatter, headings } = await render(post);
+const { title, description, categories, tags, date } = post.data;
+const minutes = readingTime(post.body ?? "");
+const primaryCategory = categories?.[0] ? humanize(categories[0]) : "";
+const author = config.metadata.meta_author;
+
+const lastModified = remarkPluginFrontmatter?.lastModified as string | undefined;
 ---
 
-<section class="section">
-  <div class="container">
-    <RightSidebar headings={headings} />
-    <article class="row justify-center">
-      <div class="md:col-10 text-center">
-        <h1 set:html={markdownify(title)} class="h2" id="overview" />
-        <ul class="mt-4 flex flex-wrap items-center justify-center text-text">
-          <li class="mx-3">
-            {
-              allAuthors
-                .filter((author) =>
-                  authors
-                    .map((author: string) => slugify(author))
-                    .includes(slugify(author.data.title))
-                )
-                .map((author, i) => (
-                  <a
-                    href={`/authors/${slugify(author.slug)}`}
-                    class="flex items-center hover:text-primary font-medium"
-                  >
-                    {author.data.image && (
-                      <Image
-                        src={author.data.image}
-                        alt={author.data.title}
-                        height={50}
-                        width={50}
-                        class="mr-2 h-6 w-6 rounded-full"
-                      />
-                    )}
-                    <span>{author.data.title}</span>
-                  </a>
-                ))
-            }
-          </li>
-          <li class="mx-3 flex items-center flex-wrap font-medium">
-            <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
-            {
-              remarkPluginFrontmatter.lastModified === date ? (
-                <>Published {dateFormat(date)}</>
-              ) : (
-                <>Modified {dateFormat(remarkPluginFrontmatter.lastModified)}</>
-              )
-            }
-          </li>
-          <li class="mx-3 flex items-center flex-wrap">
-            <BiCategoryAlt className="mr-1 h-[18px] w-[18px] text-gray-600" />
-            <>
-              <ul>
-                {
-                  categories.map((category: string, i: number) => (
-                    <li class="inline-block">
-                      <a
-                        href={`/categories/${slugify(category)}`}
-                        class="mr-2 hover:text-primary font-medium"
-                      >
-                        {humanize(category)}
-                        {i !== post.data.categories.length - 1 && ","}
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </>
-          </li>
+<article class="article">
+  <div class="article-inner">
+    <a href="/" class="article-back" transition:animate="none">← Back to Writing</a>
+
+    <header class="article-header">
+      <div class="article-kicker">
+        {primaryCategory && <span>{primaryCategory.toUpperCase()}</span>}
+        {primaryCategory && <span class="sep">·</span>}
+        <span>{minutes} MIN READ</span>
+      </div>
+      <h1 class="article-title display-title" set:html={markdownify(title)} />
+      <div class="article-meta">
+        {date && <span>{dateFormat(date)}</span>}
+        <span class="sep">·</span>
+        <span>{author}</span>
+        {lastModified && lastModified !== (date?.toISOString?.() ?? "") && (
+          <>
+            <span class="sep">·</span>
+            <span>Updated {dateFormat(new Date(lastModified))}</span>
+          </>
+        )}
+      </div>
+    </header>
+
+    <div class="article-body">
+      <div class="article-content prose-custom">
+        <TocDisclosure headings={headings} />
+        <Content />
+      </div>
+      <TocSidebar headings={headings} />
+    </div>
+
+    <footer class="article-footer">
+      {tags && tags.length > 0 && (
+        <ul class="article-tags">
+          {tags.map((tag: string) => (
+            <li>
+              <a href={`/tags/${slugify(tag)}`}>#{humanize(tag)}</a>
+            </li>
+          ))}
         </ul>
-      </div>
-
-      <div class="col-12 mt-8 mb-2">
-        {
-          image && (
-            <Image
-              src={image}
-              height={500}
-              width={1000}
-              alt={title}
-              class="rounded-lg"
-            />
-          )
-        }
-      </div>
-
-      <div class="md:col-10">
-        <div class="content mb-16 text-left">
-          <Content />
-        </div>
-        <div class="flex flex-wrap items-center justify-between">
-          <ul class="mr-4 mb-4 space-x-3">
-            {
-              tags.map((tag: string) => (
-                <li class="inline-block">
-                  <a
-                    href={`/tags/${slugify(tag)}`}
-                    class="block rounded-lg bg-theme-light px-4 py-2 font-semibold text-dark text-sm hover:text-primary transition duration-300"
-                  >
-                    #{humanize(tag)}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <Share
-            className="social-share mb-4"
-            title={title}
-            description={description}
-            slug={post.slug}
-          />
-        </div>
-      </div>
-    </article>
+      )}
+      <Share title={title} description={description ?? ""} slug={post.id} className="article-share" />
+    </footer>
   </div>
-</section>
+</article>
 
-<!-- similar posts -->
-{
-  similarPosts.length > 0 && (
-    <section class="section pt-0">
-      <div class="container">
-        <h2 class="mb-8 text-center h3">Similar Posts</h2>
-        <SimilarPosts posts={similarPosts.slice(0, 3)} />
-      </div>
-    </section>
-  )
-}
+{similar.length > 0 && (
+  <aside class="similar">
+    <div class="similar-inner">
+      <h2 class="similar-title">Similar posts</h2>
+      <PostList posts={similar} />
+    </div>
+  </aside>
+)}
+
+<!-- TOC scroll-sync: applies to both the mobile disclosure and desktop sidebar. -->
+<script is:inline set:html={tocScrollSyncScript} />
+
+<style>
+  .article { padding: 32px 24px 64px; }
+  .article-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+  }
+
+  .article-back {
+    display: inline-block;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--color-fg-muted);
+    margin-bottom: 28px;
+  }
+  .article-back:hover { color: var(--color-fg); }
+
+  .article-header {
+    text-align: center;
+    padding-bottom: 28px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .article-kicker {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .article-kicker .sep, .article-meta .sep { margin: 0 8px; color: var(--color-fg-muted); font-weight: 400; }
+  .article-title {
+    max-width: 20ch;
+    margin: 0 auto 16px;
+    color: var(--color-fg);
+  }
+  .article-meta {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+
+  /* Body: reading column + sticky TOC column at ≥900px; single column below. */
+  .article-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--toc-width);
+    gap: var(--toc-gap);
+    align-items: start;
+    max-width: calc(var(--content-max) + var(--toc-gap) + var(--toc-width));
+    margin: 0 auto;
+  }
+  .article-content { grid-column: 1; min-width: 0; }
+
+  @media (max-width: 899px) {
+    .article-body { grid-template-columns: 1fr; max-width: var(--content-max); }
+  }
+
+  .article-footer {
+    max-width: var(--content-max);
+    margin: 48px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 28px;
+    border-top: 1px solid var(--color-border);
+  }
+  .article-tags { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
+  .article-tags a {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--color-fg-secondary);
+    border: 1px solid var(--color-border);
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .article-tags a:hover { color: var(--color-accent); border-color: var(--color-accent); }
+
+  .similar { padding: 0 24px 80px; }
+  .similar-inner {
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding-top: 40px;
+    border-top: 1px solid var(--color-border);
+  }
+  .similar-title {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    margin: 0 0 12px;
+  }
+</style>

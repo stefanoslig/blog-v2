@@ -1,18 +1,6 @@
 {
   "main": [
-    {
-      "name": "Articles",
-      "url": "/"
-    },
-    {
-      "name": "About",
-      "url": "/about"
-    }
-  ],
-  "footer": [
-    {
-      "name": "About",
-      "url": "/about"
-    }
+    { "name": "Writing", "url": "/" },
+    { "name": "About", "url": "/about" }
   ]
 }

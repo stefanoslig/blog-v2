@@ -1,31 +1,38 @@
 ---
+// src/pages/tags/index.astro
 import Base from "@/layouts/Base.astro";
-import { getTaxonomy } from "@/lib/taxonomyParser.astro";
-import { humanize } from "@/lib/utils/textConverter";
+import { getSinglePage } from "@/lib/contentParser.astro";
+import { slugify, humanize } from "@/lib/utils/textConverter";
+import type { CollectionEntry } from "astro:content";
 
-import { FaHashtag } from "react-icons/fa";
+const posts: CollectionEntry<"posts">[] = await getSinglePage("posts");
 
-const tags = await getTaxonomy("posts", "tags");
+const counts = new Map<string, number>();
+for (const p of posts) {
+  for (const tag of p.data.tags ?? []) {
+    counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  }
+}
+const tags = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
 ---
 
-<Base title={"Tags"}>
-  <section class="section">
-    <div class="container text-center">
-      <h1 class="h2 page-heading">Tags</h1>
-      <ul class="space-x-4">
-        {
-          tags.map((tag) => (
-            <li class="inline-block">
-              <a
-                href={`/tags/${tag}`}
-                class="rounded-lg bg-theme-light px-4 py-2 text-dark transition hover:bg-primary hover:text-white flex items-center group"
-              >
-                <FaHashtag className="mr-1 text-primary group-hover:text-white transition" />
-                <>{humanize(tag || "")}</>
-              </a>
-            </li>
-          ))
-        }
+<Base title="Tags">
+  <section class="taxonomy">
+    <div class="taxonomy-inner">
+      <a href="/" class="taxonomy-back">← Back to Writing</a>
+      <header class="taxonomy-header">
+        <div class="kicker">TAGS</div>
+        <h1 class="display-title">All tags</h1>
+      </header>
+      <ul class="taxonomy-grid">
+        {tags.map(([tag, count]) => (
+          <li>
+            <a href={`/tags/${slugify(tag)}`} class="taxonomy-chip">
+              <span>#{humanize(tag)}</span>
+              <span class="taxonomy-count">{count}</span>
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   </section>

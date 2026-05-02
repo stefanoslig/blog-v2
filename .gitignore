@@ -23,3 +23,7 @@ package-lock.json
 
 # ignore .astro directory
 .astro
+
+# superpowers brainstorm session files
+.superpowers/
+docs/

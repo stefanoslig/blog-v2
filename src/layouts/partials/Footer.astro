@@ -1,47 +1,111 @@
 ---
-import Social from '@/components/Social.astro';
-import config from '@/config/config.json';
-import menu from '@/config/menu.json';
-import social from '@/config/social.json';
-import { markdownify } from '@/lib/utils/textConverter';
-import FooterBackground from '../../../public/assets/footer.svg';
+// src/layouts/partials/Footer.astro
+import { Icon } from "astro-icon/components";
+import config from "@/config/config.json";
+import social from "@/config/social.json";
+import { markdownify } from "@/lib/utils/textConverter";
+
+const socialLinks = Object.entries(social as Record<string, string>)
+  .filter(([, link]) => typeof link === "string" && link.length > 0)
+  .map(([name, link]) => ({ name, link }));
+
+// Map social.json keys to Iconify icon names and human-readable labels.
+// Brand marks come from simple-icons; generic ones from mdi.
+const ICON_META: Record<string, { icon: string; label: string }> = {
+  twitter: { icon: "simple-icons:x", label: "Twitter" },
+  github: { icon: "simple-icons:github", label: "GitHub" },
+  linkedin: { icon: "simple-icons:linkedin", label: "LinkedIn" },
+  medium: { icon: "simple-icons:medium", label: "Medium" },
+  facebook: { icon: "simple-icons:facebook", label: "Facebook" },
+  instagram: { icon: "simple-icons:instagram", label: "Instagram" },
+  youtube: { icon: "simple-icons:youtube", label: "YouTube" },
+  gitlab: { icon: "simple-icons:gitlab", label: "GitLab" },
+  bitbucket: { icon: "simple-icons:bitbucket", label: "Bitbucket" },
+  codepen: { icon: "simple-icons:codepen", label: "CodePen" },
+  dribbble: { icon: "simple-icons:dribbble", label: "Dribbble" },
+  behance: { icon: "simple-icons:behance", label: "Behance" },
+  pinterest: { icon: "simple-icons:pinterest", label: "Pinterest" },
+  soundcloud: { icon: "simple-icons:soundcloud", label: "SoundCloud" },
+  tumblr: { icon: "simple-icons:tumblr", label: "Tumblr" },
+  reddit: { icon: "simple-icons:reddit", label: "Reddit" },
+  vk: { icon: "simple-icons:vk", label: "VK" },
+  whatsapp: { icon: "simple-icons:whatsapp", label: "WhatsApp" },
+  snapchat: { icon: "simple-icons:snapchat", label: "Snapchat" },
+  vimeo: { icon: "simple-icons:vimeo", label: "Vimeo" },
+  tiktok: { icon: "simple-icons:tiktok", label: "TikTok" },
+  foursquare: { icon: "simple-icons:foursquare", label: "Foursquare" },
+  skype: { icon: "simple-icons:skype", label: "Skype" },
+  rss: { icon: "mdi:rss", label: "RSS" },
+  email: { icon: "mdi:email-outline", label: "Email" },
+  phone: { icon: "mdi:phone-outline", label: "Phone" },
+  address: { icon: "mdi:map-marker-outline", label: "Address" },
+  website: { icon: "mdi:web", label: "Website" },
+};
+const FALLBACK = { icon: "mdi:web", label: "Link" };
 ---
 
-<footer>
-  <FooterBackground />
-  <div class="footer-social text-center">
-    {/* footer menu */}
-    <ul class="mb-2 space-x-4">
-      {
-        menu.footer.map((menu) => (
-          <li class="inline-block">
-            <a
-              href={menu.url}
-              class="p-4 text-white/75 hover:text-white transition-all"
-            >
-              {menu.name}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-    {/* social icons */}
-    <Social source={social} className="social-icons mb-8" />
-    {/* copyright */}
-    <p set:html={markdownify(config.params.copyright)} class="text-white/75" />
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <p class="site-footer-copyright" set:html={markdownify(config.params.copyright)} />
+
+    {socialLinks.length > 0 && (
+      <ul class="site-footer-social" aria-label="Social links">
+        {socialLinks.map((item) => {
+          const meta = ICON_META[item.name] ?? FALLBACK;
+          return (
+            <li>
+              <a href={item.link} target="_blank" rel="noopener noreferrer">
+                <Icon name={meta.icon} class="site-footer-social-icon" aria-hidden="true" />
+                <span>{meta.label}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    )}
   </div>
 </footer>
 
 <style>
-  footer {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .site-footer {
+    margin-top: 96px;
+    border-top: 1px solid var(--color-border);
+    padding: 28px 24px 40px;
   }
-
-  .footer-social { position: absolute; bottom: auto; }
-  @media (min-width: 768px) {
-    .footer-social { position: absolute; bottom: 5rem; }
+  .site-footer-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    letter-spacing: 0.05em;
+  }
+  .site-footer-copyright { margin: 0; }
+  .site-footer-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-footer-social a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: inherit;
+    border-radius: 3px;
+    text-decoration: none;
+  }
+  .site-footer-social a:hover { color: var(--color-fg); }
+  .site-footer-social-icon {
+    width: 14px;
+    height: 14px;
+    display: block;
   }
 </style>

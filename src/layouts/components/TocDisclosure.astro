@@ -1,0 +1,51 @@
+---
+// src/layouts/components/TocDisclosure.astro
+// <details>-style TOC, visible at <900px, placed inside the article content column.
+import type { MarkdownHeading } from "astro";
+
+export interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((h: MarkdownHeading) => h.depth === 2 || h.depth === 3);
+---
+
+{items.length > 0 && (
+  <details class="toc-disclosure" aria-label="Table of contents">
+    <summary>Contents</summary>
+    <ol class="toc-disclosure-list">
+      {items.map((h: MarkdownHeading) => (
+        <li class:list={[`toc-depth-${h.depth}`]}>
+          <a href={`#${h.slug}`} class="toc-link" data-target={h.slug}>{h.text}</a>
+        </li>
+      ))}
+    </ol>
+  </details>
+)}
+
+<style>
+  .toc-disclosure {
+    display: block;
+    margin: 0 0 32px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-family: var(--font-mono), monospace;
+    font-size: 12px;
+  }
+  .toc-disclosure > summary {
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+  .toc-disclosure[open] > summary { margin-bottom: 8px; }
+  .toc-disclosure-list { list-style: none; margin: 0; padding: 0; }
+  .toc-disclosure-list .toc-depth-3 { padding-left: 12px; }
+  @media (min-width: 900px) {
+    .toc-disclosure { display: none; }
+  }
+</style>

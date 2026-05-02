@@ -1,62 +1,66 @@
 ---
-import config from '@/config/config.json';
-import { Image } from 'astro:assets';
-import Base from '@/layouts/Base.astro';
-import { markdownify } from '@/lib/utils/textConverter';
-import { getEntryBySlug } from 'astro:content';
-import { FaEnvelope } from 'react-icons/fa';
+// src/pages/about.astro
+import Base from "@/layouts/Base.astro";
 
-const entry = await getEntryBySlug('about', 'index');
-const { Content } = await entry.render();
-const { email } = config.contactinfo;
-const { title, description, meta_title, image } = entry.data;
+let title = "About";
+let Content: any = null;
+let image: string | undefined;
+try {
+  const about = await import("@/content/about/index.md");
+  title = (about.frontmatter as any)?.title ?? "About";
+  image = (about.frontmatter as any)?.image;
+  Content = about.Content;
+} catch { /* ignore */ }
 ---
 
-<Base
-  title={title}
-  meta_title={meta_title}
-  description={description}
-  image={image}
->
-  <section class="section">
-    <div class="container">
-      <div class="row md:gx-4">
-        <div class="sm:col-5 md:col-4">
-          {
-            image && (
-              <div class="img-cover mb-8 ">
-                <Image
-                  src={image}
-                  width={395}
-                  height={395}
-                  alt={title}
-                  class="rounded-full"
-                />
-              </div>
-            )
-          }
-        </div>
-        <div class="sm:col-7 md:col-8">
-          <h1 set:html={markdownify(title)} class="h3 mb-8" />
+<Base title={title}>
+  <section class="about">
+    <div class="about-inner">
+      <a href="/" class="about-back">← Back to Writing</a>
 
-          <div class="content">
-            <Content />
-          </div>
-          <p class="mb-8 text-2xl font-bold text-theme-dark">Contact Info</p>
-          <ul class="flex flex-col space-y-8">
-            <li>
-              <div class="flex text-theme-dark items-center text-xl">
-                <FaEnvelope className="mr-3 text-primary" />
-                <p class="font-semibold">Email</p>
-              </div>
-              <p
-                set:html={markdownify(email)}
-                class="mt-2 leading-5 pl-8 content"
-              />
-            </li>
-          </ul>
+      <header class="about-header">
+        <div class="kicker">ABOUT</div>
+        <h1 class="display-title">{title}</h1>
+      </header>
+
+      <div class="about-body">
+        {image && (
+          <img src={image} alt="Stefanos Lignos" class="about-photo" width="120" height="120" />
+        )}
+        <div class="prose-custom about-prose">
+          {Content && <Content />}
         </div>
       </div>
     </div>
   </section>
 </Base>
+
+<style>
+  .about { padding: 32px 24px 80px; }
+  .about-inner { max-width: var(--content-max); margin: 0 auto; }
+  .about-back {
+    display: inline-block;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--color-fg-muted);
+    margin-bottom: 28px;
+  }
+  .about-back:hover { color: var(--color-fg); }
+
+  .about-header { margin-bottom: 32px; }
+  .about-header .kicker { margin-bottom: 10px; color: var(--color-accent); }
+
+  .about-body { display: flex; gap: 24px; align-items: flex-start; }
+  .about-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .about-prose { flex: 1; }
+  @media (max-width: 540px) {
+    .about-body { flex-direction: column; gap: 16px; }
+  }
+</style>

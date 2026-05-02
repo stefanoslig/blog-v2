@@ -1,15 +1,15 @@
 ---
-title: "How to organize your libs in a nrwl/nx monorepo"
-description: "In this article you can find a real world example and a short explanation of how you can organize the libs in an Angular nrwl/nx monorepo"
+title: "How to organize your libs in a Nx monorepo"
+description: "In this article you can find a real world example and a short explanation of how you can organize the libs in an Angular Nx monorepo"
 image: "/assets/blog/organize-your-libs-in-nx-monorepo/building-blocks.jpeg"
 date: 2022-04-22T05:35:07.322Z
 authors: ["Stefanos Lignos"]
-categories: ["Angular"]
-tags: ["Angular", "nrwl/nx"]
+categories: ["Nx"]
+tags: ["Angular", "Nx"]
 draft: false
 ---
 
-In this article you can find a real world example and a short explanation of how you can organize the libs in an Angular nrwl/nx monorepo. You can find the code on the following [Github](https://github.com/stefanoslig/organize-nx-libs-article-demo) repository.
+In this article you can find a real world example and a short explanation of how you can organize the libs in an Angular Nx monorepo. You can find the code on the following [Github](https://github.com/stefanoslig/organize-nx-libs-article-demo) repository.
 
 In this project, there is one app (learning-tube) which consumes the libraries under the libs folder.
 

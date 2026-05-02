@@ -1,37 +1,41 @@
 ---
+// src/pages/tags/[tag].astro
 import Base from "@/layouts/Base.astro";
-import Posts from "@/layouts/Posts.astro";
+import PostList from "@/components/PostList.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
-import { getTaxonomy } from "@/lib/taxonomyParser.astro";
 import { sortByDate } from "@/lib/utils/sortFunctions";
-import taxonomyFilter from "@/lib/utils/taxonomyFilter";
-import { humanize } from "@/lib/utils/textConverter";
+import { slugify, humanize } from "@/lib/utils/textConverter";
+import type { CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
-  const tags = await getTaxonomy("posts", "tags");
+  const posts: CollectionEntry<"posts">[] = await getSinglePage("posts");
+  const tagSet = new Set<string>();
+  for (const p of posts) for (const t of p.data.tags) tagSet.add(t);
 
-  return tags.map((tag) => {
+  return Array.from(tagSet).map((tag) => {
+    const matching = sortByDate(
+      posts.filter((p) => p.data.tags.some((t) => slugify(t) === slugify(tag)))
+    );
     return {
-      params: { tag },
+      params: { tag: slugify(tag) },
+      props: { tag, posts: matching },
     };
   });
 }
 
-const { tag } = Astro.params;
-
-const posts = await getSinglePage("posts");
-const filterByTags = taxonomyFilter(posts, "tags", tag);
-const sortedPosts = sortByDate(filterByTags);
-
-const title = humanize(tag || "");
+const { tag, posts } = Astro.props as { tag: string; posts: CollectionEntry<"posts">[] };
 ---
 
-<Base title={title || "Tag"}>
-  <div class="section">
-    <div class="container">
-      <p class="text-center text-2xl mb-4">Showing Posts From</p>
-      <h1 class="h2 mb-16 text-center text-primary">{title}</h1>
-      <Posts posts={sortedPosts} fluid={false} />
+<Base title={`Tag: ${humanize(tag)}`}>
+  <section class="taxonomy-single">
+    <div class="taxonomy-inner">
+      <a href="/tags" class="taxonomy-back">← All tags</a>
+      <header class="taxonomy-header">
+        <div class="kicker">TAG</div>
+        <h1 class="display-title">#{humanize(tag)}</h1>
+        <p class="taxonomy-count-text">{posts.length} {posts.length === 1 ? "article" : "articles"}</p>
+      </header>
+      <PostList posts={posts} />
     </div>
-  </div>
+  </section>
 </Base>
