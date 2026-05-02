@@ -2,6 +2,9 @@
   "name": "blog-v2",
   "version": "1.0.0",
   "license": "MIT",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
