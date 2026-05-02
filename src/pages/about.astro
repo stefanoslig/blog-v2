@@ -1,6 +1,8 @@
 ---
 // src/pages/about.astro
 import Base from "@/layouts/Base.astro";
+import { Icon } from "astro-icon/components";
+import social from "@/config/social.json";
 
 let title = "About";
 let Content: any = null;
@@ -11,6 +13,8 @@ try {
   image = (about.frontmatter as any)?.image;
   Content = about.Content;
 } catch { /* ignore */ }
+
+const email = (social as Record<string, string>).email;
 ---
 
 <Base title={title}>
@@ -29,6 +33,14 @@ try {
         )}
         <div class="prose-custom about-prose">
           {Content && <Content />}
+          {email && (
+            <p class="about-contact">
+              Feel free to reach out at{" "}
+              <a href={`mailto:${email}`} class="about-email">
+                <span>{email}</span>
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -60,6 +72,12 @@ try {
     flex-shrink: 0;
   }
   .about-prose { flex: 1; }
+  .about-contact { margin-top: 1.25em; }
+  .about-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
   @media (max-width: 540px) {
     .about-body { flex-direction: column; gap: 16px; }
   }

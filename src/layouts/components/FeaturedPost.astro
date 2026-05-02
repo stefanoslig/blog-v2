@@ -7,11 +7,10 @@ import { humanize } from "@/lib/utils/textConverter";
 
 export interface Props {
   post: CollectionEntry<"posts">;
-  index?: string; // e.g. "01"
 }
 
-const { post, index = "01" } = Astro.props;
-const { title, description, date, categories } = post.data;
+const { post } = Astro.props;
+const { title, description, date, categories, image } = post.data;
 // post.body may be undefined in Astro 6 content layer; hide the badge when unavailable
 const body = (post.body as string | undefined) ?? "";
 const minutes = body ? readingTime(body) : null;
@@ -20,13 +19,15 @@ const primaryCategory = (categories && categories[0]) ? humanize(categories[0]) 
 
 <article class="featured">
   <a href={`/posts/${post.id}`} class="featured-link">
-    <div class="featured-num">
-      <span>{index}</span><span class="featured-num-dot">.</span>
-    </div>
+    {image && (
+      <div class="featured-image">
+        <img src={image} alt={title} loading="eager" />
+      </div>
+    )}
 
     <div class="featured-body">
       <div class="featured-kicker">
-        <span class="featured-label">LATEST</span>
+        <span class="featured-label">LATEST ARTICLE</span>
         {primaryCategory && <><span class="featured-sep">·</span><span>{primaryCategory.toUpperCase()}</span></>}
         {minutes !== null && (
           <>
@@ -56,20 +57,24 @@ const primaryCategory = (categories && categories[0]) ? humanize(categories[0]) 
   }
   .featured-link {
     display: grid;
-    grid-template-columns: 72px 1fr;
-    gap: 20px;
+    grid-template-columns: clamp(220px, 36%, 360px) minmax(0, 1fr);
+    gap: 28px;
     color: inherit;
     align-items: start;
   }
-  .featured-num {
-    font-family: var(--font-mono), monospace;
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    color: var(--color-fg);
+  .featured-image {
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--color-border);
   }
-  .featured-num-dot { color: var(--color-accent); }
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 300ms ease;
+  }
+  .featured-link:hover .featured-image img { transform: scale(1.02); }
   .featured-kicker {
     font-family: var(--font-mono), monospace;
     font-size: 11px;
@@ -77,7 +82,7 @@ const primaryCategory = (categories && categories[0]) ? humanize(categories[0]) 
     color: var(--color-fg-muted);
     margin-bottom: 10px;
   }
-  .featured-kicker .featured-label { color: var(--color-accent); font-weight: 500; }
+  .featured-kicker .featured-label { color: var(--color-accent); font-weight: 800; }
   .featured-kicker .featured-sep { margin: 0 6px; opacity: 0.6; }
   .featured-title {
     font-size: clamp(26px, 2.4vw + 14px, 36px);
@@ -109,8 +114,8 @@ const primaryCategory = (categories && categories[0]) ? humanize(categories[0]) 
     color: var(--color-accent);
     font-weight: 500;
   }
-  @media (max-width: 540px) {
-    .featured-link { grid-template-columns: 1fr; gap: 12px; }
-    .featured-num { font-size: 28px; }
+  @media (max-width: 768px) {
+    .featured-link { grid-template-columns: 1fr; gap: 16px; }
+    .featured-image { aspect-ratio: 16 / 9; }
   }
 </style>

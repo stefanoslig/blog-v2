@@ -23,7 +23,7 @@ const posts = await getSinglePage("posts");
 const similar = similarItems(post, posts, post.id).slice(0, 3);
 
 const { Content, remarkPluginFrontmatter, headings } = await render(post);
-const { title, description, categories, tags, date } = post.data;
+const { title, description, categories, tags, date, image } = post.data;
 const minutes = readingTime(post.body ?? "");
 const primaryCategory = categories?.[0] ? humanize(categories[0]) : "";
 const author = config.metadata.meta_author;
@@ -54,6 +54,12 @@ const lastModified = remarkPluginFrontmatter?.lastModified as string | undefined
         )}
       </div>
     </header>
+
+    {image && (
+      <figure class="article-hero">
+        <img src={image} alt={title} loading="eager" />
+      </figure>
+    )}
 
     <div class="article-body">
       <div class="article-content prose-custom">
@@ -134,6 +140,21 @@ const lastModified = remarkPluginFrontmatter?.lastModified as string | undefined
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--color-fg-muted);
+  }
+
+  .article-hero {
+    max-width: var(--content-max);
+    margin: 0 auto 40px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--color-border);
+  }
+  .article-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
   }
 
   /* Body: reading column + sticky TOC column at ≥900px; single column below. */

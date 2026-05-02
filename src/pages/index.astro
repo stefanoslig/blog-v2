@@ -30,7 +30,7 @@ const groupEntries = Array.from(groups.entries()).sort(([, a], [, b]) => {
 <Base>
   <section class="home">
     <div class="home-inner">
-      {latest && <FeaturedPost post={latest} index="01" />}
+      {latest && <FeaturedPost post={latest} />}
 
       {groupEntries.map(([category, postsInCategory]) => (
         <CategoryGroup category={category} posts={postsInCategory} />
