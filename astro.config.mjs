@@ -4,7 +4,6 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import partytown from "@astrojs/partytown";
 import icon from "astro-icon";
-import tailwindcss from "@tailwindcss/vite";
 import remarkCollapse from "remark-collapse";
 import remarkToc from "remark-toc";
 import { remarkModifiedTime } from "./remark-modified-time.mjs";
@@ -16,10 +15,6 @@ export default defineConfig({
   site: config.site.base_url || "http://examplesite.com",
   base: config.site.base_path || "/",
   trailingSlash: config.site.trailing_slash ? "always" : "never",
-
-  vite: {
-    plugins: [tailwindcss()],
-  },
 
   fonts: [
     {
