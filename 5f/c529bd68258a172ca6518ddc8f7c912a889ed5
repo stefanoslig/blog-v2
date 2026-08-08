@@ -1,0 +1,16 @@
+src/content/about/index.md
+  h_385d4fc39511f7 8
+src/content/posts/handover-skill.mdx
+  h_385d4fc39511f7 1-95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "5fc529bd68258a172ca6518ddc8f7c912a889ed5",
+  "prompts": {},
+  "humans": {
+    "h_385d4fc39511f7": {
+      "author": "StefanosLignos <stefanos.lignos@bam.com>"
+    }
+  }
+}
